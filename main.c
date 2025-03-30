@@ -16,6 +16,7 @@ struct wl_compositor *compositor = NULL;
 struct xdg_wm_base *xdg_wm_base = NULL;
 struct wl_surface *surface = NULL;
 struct xdg_surface *xdg_surface = NULL;
+struct xdg_toplevel *xdg_toplevel = NULL;
 
 // clang-format off
 EGLint const attrib_list[] = {
@@ -44,6 +45,9 @@ static void global_registry_remover(void *data, struct wl_registry *registry,
 
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler, global_registry_remover};
+
+// TODO: Create listener.
+//static const struct xdg_toplevel_listener toplevel_listener = {}
 
 int main() {
   EGLDisplay egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -80,7 +84,11 @@ int main() {
 
   /* create xdg_surface */
   xdg_surface = xdg_wm_base_get_xdg_surface(xdg_wm_base, surface);
-	assert(xdg_surface != NULL);
+  assert(xdg_surface != NULL);
+
+  /* create toplevel */
+  xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
+  assert(xdg_toplevel);
 
   /* create wl window */
   // struct wl_surface surface;
