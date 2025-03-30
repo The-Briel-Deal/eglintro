@@ -3,6 +3,7 @@
 #include <GL/gl.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
@@ -24,24 +25,24 @@ EGLint const attrib_list[] = {
 };
 // clang-format on
 
-//static void global_registry_handler(void *data, struct wl_registry *registry,
-//                                    uint32_t id, const char *interface,
-//                                    uint32_t version) {
-//  printf("Got a registry event for %s id %d\n", interface, id);
-//  if (strcmp(interface, "wl_compositor") == 0) {
-//    compositor = wl_registry_bind(registry, id, &wl_compositor_interface, 1);
-//  } else if (strcmp(interface, "xdg_wm_base") == 0) {
-//    // shell = wl_registry_bind(registry, id, &wl_shell_interface, 1);
-//  }
-//}
-//
-//static void global_registry_remover(void *data, struct wl_registry *registry,
-//                                    uint32_t id) {
-//  printf("Got a registry losing event for %d\n", id);
-//}
-//
-//static const struct wl_registry_listener registry_listener = {
-//    global_registry_handler, global_registry_remover};
+static void global_registry_handler(void *data, struct wl_registry *registry,
+                                    uint32_t id, const char *interface,
+                                    uint32_t version) {
+  printf("Got a registry event for %s id %d\n", interface, id);
+  if (strcmp(interface, "wl_compositor") == 0) {
+    compositor = wl_registry_bind(registry, id, &wl_compositor_interface, 1);
+  } else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
+    xdg_wm_base = wl_registry_bind(registry, id, &xdg_wm_base_interface, 1);
+  }
+}
+
+static void global_registry_remover(void *data, struct wl_registry *registry,
+                                    uint32_t id) {
+  printf("Got a registry losing event for %d\n", id);
+}
+
+static const struct wl_registry_listener registry_listener = {
+    global_registry_handler, global_registry_remover};
 
 int main() {
   EGLDisplay egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -63,6 +64,16 @@ int main() {
   /* connect to compositor */
   display = wl_display_connect(NULL);
   assert(display != NULL);
+
+  struct wl_registry *registry = wl_display_get_registry(display);
+  wl_registry_add_listener(registry, &registry_listener, NULL);
+
+  wl_display_dispatch(display);
+  wl_display_roundtrip(display);
+	assert(xdg_wm_base != NULL);
+	assert(compositor != NULL);
+
+
 
   /* create wl window */
   // struct wl_surface surface;
