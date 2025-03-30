@@ -15,6 +15,7 @@ struct wl_display *display = NULL;
 struct wl_compositor *compositor = NULL;
 struct xdg_wm_base *xdg_wm_base = NULL;
 struct wl_surface *surface = NULL;
+struct xdg_surface *xdg_surface = NULL;
 
 // clang-format off
 EGLint const attrib_list[] = {
@@ -30,9 +31,9 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
                                     uint32_t version) {
   printf("Got a registry event for %s id %d\n", interface, id);
   if (strcmp(interface, "wl_compositor") == 0) {
-    compositor = wl_registry_bind(registry, id, &wl_compositor_interface, 1);
+    compositor = wl_registry_bind(registry, id, &wl_compositor_interface, 6);
   } else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
-    xdg_wm_base = wl_registry_bind(registry, id, &xdg_wm_base_interface, 1);
+    xdg_wm_base = wl_registry_bind(registry, id, &xdg_wm_base_interface, 5);
   }
 }
 
@@ -70,10 +71,16 @@ int main() {
 
   wl_display_dispatch(display);
   wl_display_roundtrip(display);
-	assert(xdg_wm_base != NULL);
-	assert(compositor != NULL);
+  assert(xdg_wm_base != NULL);
+  assert(compositor != NULL);
 
+  /* create wl_surface */
+  surface = wl_compositor_create_surface(compositor);
+  assert(surface != NULL);
 
+  /* create xdg_surface */
+  xdg_surface = xdg_wm_base_get_xdg_surface(xdg_wm_base, surface);
+	assert(xdg_surface != NULL);
 
   /* create wl window */
   // struct wl_surface surface;
