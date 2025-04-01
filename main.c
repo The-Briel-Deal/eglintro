@@ -20,7 +20,7 @@ struct xdg_wm_base *xdg_wm_base = NULL;
 struct wl_surface *surface = NULL;
 struct xdg_surface *xdg_surface = NULL;
 struct xdg_toplevel *xdg_toplevel = NULL;
-struct wl_egl_window *egl_window = NULL;
+struct wl_egl_window *wl_egl_window = NULL;
 struct wl_region *region = NULL;
 EGLSurface egl_surface = EGL_NO_SURFACE;
 EGLContext egl_context = EGL_NO_CONTEXT;
@@ -125,8 +125,7 @@ const char *eglGetErrorString(EGLint error) {
 #undef CASE_STR
 }
 
-int main() {
-
+void initWayland() {
   /* connect to compositor */
   display = wl_display_connect(NULL);
   assert(display != NULL);
@@ -169,9 +168,11 @@ int main() {
 
   wl_region_add(region, 0, 0, 480, 360);
   wl_surface_set_opaque_region(surface, region);
-  egl_window = wl_egl_window_create(surface, 480, 360);
-  assert(egl_window != NULL);
+  wl_egl_window = wl_egl_window_create(surface, 480, 360);
+  assert(wl_egl_window != NULL);
+}
 
+void initEGL() {
   EGLDisplay egl_display = eglGetDisplay(display);
   assert(egl_display != EGL_NO_DISPLAY);
   EGLBoolean success;
@@ -186,17 +187,20 @@ int main() {
   EGLint num_config;
   success =
       eglChooseConfig(egl_display, config_attribs, &config, 1, &num_config);
-  assert(success);
-  assert(num_config == 1);
+  assert(success && num_config == 1);
 
   /* create context */
   egl_context =
       eglCreateContext(egl_display, config, EGL_NO_CONTEXT, context_attribs);
   assert(egl_context != EGL_NO_CONTEXT);
 
-  egl_surface = eglCreateWindowSurface(egl_display, config,
-                                       (EGLNativeWindowType)egl_window, NULL);
-  err = eglGetError();
-  printf("eglError = %s\n", eglGetErrorString(err));
+  /* Init egl_surface */
+  egl_surface = eglCreateWindowSurface(
+      egl_display, config, (EGLNativeWindowType)wl_egl_window, NULL);
   assert(egl_surface != NULL);
+}
+
+int main() {
+  initWayland();
+  initEGL();
 }
