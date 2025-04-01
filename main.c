@@ -2,6 +2,8 @@
 #include <EGL/eglplatform.h>
 #include <GL/gl.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -27,6 +29,15 @@ EGLint const attrib_list[] = {
 };
 // clang-format on
 
+static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
+                             uint32_t serial) {
+  printf("ponged (:\n");
+  xdg_wm_base_pong(xdg_wm_base, serial);
+}
+
+static const struct xdg_wm_base_listener xdg_wm_base_listener = {
+    .ping = xdg_wm_base_ping};
+
 static void global_registry_handler(void *data, struct wl_registry *registry,
                                     uint32_t id, const char *interface,
                                     uint32_t version) {
@@ -46,8 +57,23 @@ static void global_registry_remover(void *data, struct wl_registry *registry,
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler, global_registry_remover};
 
-// TODO: Create listener.
-//static const struct xdg_toplevel_listener toplevel_listener = {}
+// static void xdg_toplevel_configure(void *data,
+//                                    struct xdg_toplevel *xdg_toplevel,
+//                                    int32_t width, int32_t height,
+//                                    struct wl_array *states) {
+//   printf("Toplevel Configured\n");
+// }
+//
+// static const struct xdg_toplevel_listener toplevel_listener = {
+//     .configure = xdg_toplevel_configure};
+
+static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
+                                  uint32_t serial) {
+  printf("xdg_surface configured\n");
+}
+
+static const struct xdg_surface_listener xdg_surface_listener = {
+    .configure = xdg_surface_configure};
 
 int main() {
   EGLDisplay egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -78,6 +104,8 @@ int main() {
   assert(xdg_wm_base != NULL);
   assert(compositor != NULL);
 
+  xdg_wm_base_add_listener(xdg_wm_base, &xdg_wm_base_listener, NULL);
+
   /* create wl_surface */
   surface = wl_compositor_create_surface(compositor);
   assert(surface != NULL);
@@ -89,6 +117,19 @@ int main() {
   /* create toplevel */
   xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
   assert(xdg_toplevel);
+
+  int err;
+  // err = xdg_toplevel_add_listener(xdg_toplevel, &toplevel_listener, NULL);
+  // assert(err == 0);
+
+  err = xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, NULL);
+  assert(err == 0);
+
+  xdg_toplevel_set_title(xdg_toplevel, "test title");
+  wl_surface_commit(surface);
+
+  wl_display_dispatch(display);
+  wl_display_roundtrip(display);
 
   /* create wl window */
   // struct wl_surface surface;
