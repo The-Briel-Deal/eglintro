@@ -14,6 +14,32 @@
 
 #include "xdg_shell.h"
 
+#define CASE_STR(value)                                                        \
+  case value:                                                                  \
+    return #value;
+const char *eglGetErrorString(EGLint error) {
+  switch (error) {
+    CASE_STR(EGL_SUCCESS)
+    CASE_STR(EGL_NOT_INITIALIZED)
+    CASE_STR(EGL_BAD_ACCESS)
+    CASE_STR(EGL_BAD_ALLOC)
+    CASE_STR(EGL_BAD_ATTRIBUTE)
+    CASE_STR(EGL_BAD_CONTEXT)
+    CASE_STR(EGL_BAD_CONFIG)
+    CASE_STR(EGL_BAD_CURRENT_SURFACE)
+    CASE_STR(EGL_BAD_DISPLAY)
+    CASE_STR(EGL_BAD_SURFACE)
+    CASE_STR(EGL_BAD_MATCH)
+    CASE_STR(EGL_BAD_PARAMETER)
+    CASE_STR(EGL_BAD_NATIVE_PIXMAP)
+    CASE_STR(EGL_BAD_NATIVE_WINDOW)
+    CASE_STR(EGL_CONTEXT_LOST)
+  default:
+    return "Unknown";
+  }
+}
+#undef CASE_STR
+
 struct wl_display *display = NULL;
 struct wl_compositor *compositor = NULL;
 struct xdg_wm_base *xdg_wm_base = NULL;
@@ -23,12 +49,15 @@ struct xdg_toplevel *xdg_toplevel = NULL;
 struct wl_egl_window *egl_window = NULL;
 EGLSurface egl_surface = EGL_NO_SURFACE;
 EGLContext egl_context = EGL_NO_CONTEXT;
-
+EGLDisplay egl_display = EGL_NO_DISPLAY;
+EGLConfig config = NULL;
 // clang-format off
 static const EGLint config_attribs[] = {
-  EGL_RED_SIZE, 4,
-  EGL_GREEN_SIZE, 4,
-  EGL_BLUE_SIZE, 4,
+  EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+  EGL_RED_SIZE, 8,
+  EGL_GREEN_SIZE, 8,
+  EGL_BLUE_SIZE, 8,
+  EGL_RENDERABLE_TYPE, EGL_WINDOW_BIT,
   EGL_NONE
 };
 
@@ -66,65 +95,44 @@ static void global_registry_remover(void *data, struct wl_registry *registry,
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler, global_registry_remover};
 
-static void xdg_toplevel_configure(void *data,
-                                   struct xdg_toplevel *xdg_toplevel,
-                                   int32_t width, int32_t height,
-                                   struct wl_array *states) {
-  printf("Toplevel Configured\n");
-}
-
-static void xdg_toplevel_wm_capabilities(void *data,
-                                         struct xdg_toplevel *xdg_toplevel,
-                                         struct wl_array *capabilities) {
-  printf("xdg toplevel wm_capabilities:\n");
-
-  int *capability;
-  wl_array_for_each(capability, capabilities) {
-    printf("Capability - %i\n", *capability);
-  }
-}
-
-static const struct xdg_toplevel_listener toplevel_listener = {
-    .configure = xdg_toplevel_configure,
-    .wm_capabilities = xdg_toplevel_wm_capabilities};
+// static void xdg_toplevel_configure(void *data,
+//                                    struct xdg_toplevel *xdg_toplevel,
+//                                    int32_t width, int32_t height,
+//                                    struct wl_array *states) {
+//   printf("Toplevel Configured\n");
+// }
+//
+// static void xdg_toplevel_wm_capabilities(void *data,
+//                                          struct xdg_toplevel *xdg_toplevel,
+//                                          struct wl_array *capabilities) {
+//   printf("xdg toplevel wm_capabilities:\n");
+//
+//   int *capability;
+//   wl_array_for_each(capability, capabilities) {
+//     printf("Capability - %i\n", *capability);
+//   }
+// }
+//
+// static const struct xdg_toplevel_listener toplevel_listener = {
+//     .configure = xdg_toplevel_configure,
+//     .wm_capabilities = xdg_toplevel_wm_capabilities};
 
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
                                   uint32_t serial) {
   printf("xdg_surface configured\n");
-	xdg_surface_ack_configure(xdg_surface, serial);
+  xdg_surface_ack_configure(xdg_surface, serial);
+
+  egl_window = wl_egl_window_create(surface, 480, 360);
+  assert(egl_window != NULL);
+
+  wl_surface_commit(surface);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = xdg_surface_configure};
 
-#define CASE_STR(value)                                                        \
-  case value:                                                                  \
-    return #value;
-const char *eglGetErrorString(EGLint error) {
-  switch (error) {
-    CASE_STR(EGL_SUCCESS)
-    CASE_STR(EGL_NOT_INITIALIZED)
-    CASE_STR(EGL_BAD_ACCESS)
-    CASE_STR(EGL_BAD_ALLOC)
-    CASE_STR(EGL_BAD_ATTRIBUTE)
-    CASE_STR(EGL_BAD_CONTEXT)
-    CASE_STR(EGL_BAD_CONFIG)
-    CASE_STR(EGL_BAD_CURRENT_SURFACE)
-    CASE_STR(EGL_BAD_DISPLAY)
-    CASE_STR(EGL_BAD_SURFACE)
-    CASE_STR(EGL_BAD_MATCH)
-    CASE_STR(EGL_BAD_PARAMETER)
-    CASE_STR(EGL_BAD_NATIVE_PIXMAP)
-    CASE_STR(EGL_BAD_NATIVE_WINDOW)
-    CASE_STR(EGL_CONTEXT_LOST)
-  default:
-    return "Unknown";
-  }
-}
-#undef CASE_STR
-
 int main() {
-  EGLDisplay egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   assert(egl_display != EGL_NO_DISPLAY);
   EGLBoolean success;
   EGLint major;
@@ -134,7 +142,6 @@ int main() {
   printf("EGL Version - v%i.%i\n", major, minor);
 
   /* config selection */
-  EGLConfig config;
   EGLint num_config;
   success =
       eglChooseConfig(egl_display, config_attribs, &config, 1, &num_config);
@@ -173,8 +180,8 @@ int main() {
   assert(xdg_toplevel);
 
   int err;
-  err = xdg_toplevel_add_listener(xdg_toplevel, &toplevel_listener, NULL);
-  assert(err == 0);
+  // err = xdg_toplevel_add_listener(xdg_toplevel, &toplevel_listener, NULL);
+  // assert(err == 0);
 
   err = xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, NULL);
   assert(err == 0);
@@ -184,10 +191,6 @@ int main() {
 
   wl_display_dispatch(display);
   wl_display_roundtrip(display);
-
-  /* create wl window */
-  egl_window = wl_egl_window_create(surface, 480, 360);
-  assert(egl_window != NULL);
 
   egl_surface =
       eglCreatePlatformWindowSurface(egl_display, config, egl_window, NULL);
