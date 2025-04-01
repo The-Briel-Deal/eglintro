@@ -22,6 +22,7 @@ struct xdg_surface *xdg_surface = NULL;
 struct xdg_toplevel *xdg_toplevel = NULL;
 struct wl_egl_window *wl_egl_window = NULL;
 struct wl_region *region = NULL;
+EGLDisplay egl_display = EGL_NO_DISPLAY;
 EGLSurface egl_surface = EGL_NO_SURFACE;
 EGLContext egl_context = EGL_NO_CONTEXT;
 
@@ -198,6 +199,8 @@ void initEGL() {
   egl_surface = eglCreateWindowSurface(
       egl_display, config, (EGLNativeWindowType)wl_egl_window, NULL);
   assert(egl_surface != NULL);
+
+  eglMakeCurrent(egl_display, egl_surface, egl_surface, egl_context);
 }
 
 int main() {
