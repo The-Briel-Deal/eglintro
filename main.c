@@ -91,16 +91,16 @@ static const struct xdg_toplevel_listener toplevel_listener = {
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
                                   uint32_t serial) {
   printf("xdg_surface configured\n");
-	xdg_surface_ack_configure(xdg_surface, serial);
+  xdg_surface_ack_configure(xdg_surface, serial);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = xdg_surface_configure};
 
+const char *eglGetErrorString(EGLint error) {
 #define CASE_STR(value)                                                        \
   case value:                                                                  \
     return #value;
-const char *eglGetErrorString(EGLint error) {
   switch (error) {
     CASE_STR(EGL_SUCCESS)
     CASE_STR(EGL_NOT_INITIALIZED)
@@ -120,8 +120,8 @@ const char *eglGetErrorString(EGLint error) {
   default:
     return "Unknown";
   }
-}
 #undef CASE_STR
+}
 
 int main() {
   EGLDisplay egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
