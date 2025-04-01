@@ -91,10 +91,37 @@ static const struct xdg_toplevel_listener toplevel_listener = {
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
                                   uint32_t serial) {
   printf("xdg_surface configured\n");
+	xdg_surface_ack_configure(xdg_surface, serial);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = xdg_surface_configure};
+
+#define CASE_STR(value)                                                        \
+  case value:                                                                  \
+    return #value;
+const char *eglGetErrorString(EGLint error) {
+  switch (error) {
+    CASE_STR(EGL_SUCCESS)
+    CASE_STR(EGL_NOT_INITIALIZED)
+    CASE_STR(EGL_BAD_ACCESS)
+    CASE_STR(EGL_BAD_ALLOC)
+    CASE_STR(EGL_BAD_ATTRIBUTE)
+    CASE_STR(EGL_BAD_CONTEXT)
+    CASE_STR(EGL_BAD_CONFIG)
+    CASE_STR(EGL_BAD_CURRENT_SURFACE)
+    CASE_STR(EGL_BAD_DISPLAY)
+    CASE_STR(EGL_BAD_SURFACE)
+    CASE_STR(EGL_BAD_MATCH)
+    CASE_STR(EGL_BAD_PARAMETER)
+    CASE_STR(EGL_BAD_NATIVE_PIXMAP)
+    CASE_STR(EGL_BAD_NATIVE_WINDOW)
+    CASE_STR(EGL_CONTEXT_LOST)
+  default:
+    return "Unknown";
+  }
+}
+#undef CASE_STR
 
 int main() {
   EGLDisplay egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -162,6 +189,9 @@ int main() {
   egl_window = wl_egl_window_create(surface, 480, 360);
   assert(egl_window != NULL);
 
-  egl_surface = eglCreateWindowSurface(egl_display, config, (EGLNativeWindowType)egl_window, NULL);
-
+  egl_surface =
+      eglCreatePlatformWindowSurface(egl_display, config, egl_window, NULL);
+  err = eglGetError();
+  printf("eglError = %s\n", eglGetErrorString(err));
+  assert(egl_surface != NULL);
 }
