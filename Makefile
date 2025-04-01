@@ -1,4 +1,4 @@
-CFLAGS  := -std=gnu99 -Iinclude -Wall -Werror -lEGL -lwayland-client
+CFLAGS  := -std=gnu99 -Iinclude -Wall -Werror -lEGL -lwayland-egl -lwayland-client
 
 include/xdg_shell.h: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
 	wayland-scanner client-header $< $@
