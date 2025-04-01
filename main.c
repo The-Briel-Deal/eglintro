@@ -21,22 +21,24 @@ struct wl_surface *surface = NULL;
 struct xdg_surface *xdg_surface = NULL;
 struct xdg_toplevel *xdg_toplevel = NULL;
 struct wl_egl_window *egl_window = NULL;
+struct wl_region *region = NULL;
 EGLSurface egl_surface = EGL_NO_SURFACE;
 EGLContext egl_context = EGL_NO_CONTEXT;
 
-// clang-format off
-static const EGLint config_attribs[] = {
-  EGL_RED_SIZE, 4,
-  EGL_GREEN_SIZE, 4,
-  EGL_BLUE_SIZE, 4,
-  EGL_NONE
-};
+static const EGLint config_attribs[] = {EGL_SURFACE_TYPE,
+                                        EGL_WINDOW_BIT,
+                                        EGL_RENDERABLE_TYPE,
+                                        EGL_OPENGL_ES2_BIT,
+                                        EGL_RED_SIZE,
+                                        8,
+                                        EGL_GREEN_SIZE,
+                                        8,
+                                        EGL_BLUE_SIZE,
+                                        8,
+                                        EGL_NONE};
 
-static const EGLint context_attribs[] = {
-	EGL_CONTEXT_MAJOR_VERSION, 2,
-	EGL_NONE
-};
-// clang-format on
+static const EGLint context_attribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2,
+                                         EGL_NONE, EGL_NONE};
 
 static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
                              uint32_t serial) {
@@ -124,27 +126,6 @@ const char *eglGetErrorString(EGLint error) {
 }
 
 int main() {
-  EGLDisplay egl_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  assert(egl_display != EGL_NO_DISPLAY);
-  EGLBoolean success;
-  EGLint major;
-  EGLint minor;
-  success = eglInitialize(egl_display, &major, &minor);
-  assert(success);
-  printf("EGL Version - v%i.%i\n", major, minor);
-
-  /* config selection */
-  EGLConfig config;
-  EGLint num_config;
-  success =
-      eglChooseConfig(egl_display, config_attribs, &config, 1, &num_config);
-  assert(success);
-  assert(num_config == 1);
-
-  /* create context */
-  egl_context =
-      eglCreateContext(egl_display, config, EGL_NO_CONTEXT, context_attribs);
-  assert(egl_context != EGL_NO_CONTEXT);
 
   /* connect to compositor */
   display = wl_display_connect(NULL);
@@ -168,29 +149,53 @@ int main() {
   xdg_surface = xdg_wm_base_get_xdg_surface(xdg_wm_base, surface);
   assert(xdg_surface != NULL);
 
+  int err;
+  err = xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, NULL);
+  assert(err == 0);
+
   /* create toplevel */
   xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
   assert(xdg_toplevel);
 
-  int err;
+  xdg_toplevel_set_title(xdg_toplevel, "test title");
+
   err = xdg_toplevel_add_listener(xdg_toplevel, &toplevel_listener, NULL);
   assert(err == 0);
 
-  err = xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, NULL);
-  assert(err == 0);
-
-  xdg_toplevel_set_title(xdg_toplevel, "test title");
   wl_surface_commit(surface);
 
-  wl_display_dispatch(display);
-  wl_display_roundtrip(display);
-
   /* create wl window */
+  region = wl_compositor_create_region(compositor);
+
+  wl_region_add(region, 0, 0, 480, 360);
+  wl_surface_set_opaque_region(surface, region);
   egl_window = wl_egl_window_create(surface, 480, 360);
   assert(egl_window != NULL);
 
-  egl_surface =
-      eglCreatePlatformWindowSurface(egl_display, config, egl_window, NULL);
+  EGLDisplay egl_display = eglGetDisplay(display);
+  assert(egl_display != EGL_NO_DISPLAY);
+  EGLBoolean success;
+  EGLint major;
+  EGLint minor;
+  success = eglInitialize(egl_display, &major, &minor);
+  assert(success);
+  printf("EGL Version - v%i.%i\n", major, minor);
+
+  /* config selection */
+  EGLConfig config;
+  EGLint num_config;
+  success =
+      eglChooseConfig(egl_display, config_attribs, &config, 1, &num_config);
+  assert(success);
+  assert(num_config == 1);
+
+  /* create context */
+  egl_context =
+      eglCreateContext(egl_display, config, EGL_NO_CONTEXT, context_attribs);
+  assert(egl_context != EGL_NO_CONTEXT);
+
+  egl_surface = eglCreateWindowSurface(egl_display, config,
+                                       (EGLNativeWindowType)egl_window, NULL);
   err = eglGetError();
   printf("eglError = %s\n", eglGetErrorString(err));
   assert(egl_surface != NULL);
