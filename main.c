@@ -1,6 +1,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglplatform.h>
 #include <GL/gl.h>
+#include <GLES2/gl2.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -28,8 +29,10 @@ EGLContext egl_context = EGL_NO_CONTEXT;
 
 static const EGLint config_attribs[] = {EGL_SURFACE_TYPE,
                                         EGL_WINDOW_BIT,
+                                        EGL_CONFORMANT,
+                                        EGL_OPENGL_BIT,
                                         EGL_RENDERABLE_TYPE,
-                                        EGL_OPENGL_ES2_BIT,
+                                        EGL_OPENGL_BIT,
                                         EGL_RED_SIZE,
                                         8,
                                         EGL_GREEN_SIZE,
@@ -38,8 +41,11 @@ static const EGLint config_attribs[] = {EGL_SURFACE_TYPE,
                                         8,
                                         EGL_NONE};
 
-static const EGLint context_attribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2,
-                                         EGL_NONE, EGL_NONE};
+static const EGLint context_attribs[] = {
+    EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_LINEAR,
+    EGL_RENDER_BUFFER, EGL_BACK_BUFFER,
+    EGL_NONE,
+};
 
 static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
                              uint32_t serial) {
@@ -69,11 +75,23 @@ static void global_registry_remover(void *data, struct wl_registry *registry,
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler, global_registry_remover};
 
+int32_t old_w, old_h;
 static void xdg_toplevel_configure(void *data,
-                                   struct xdg_toplevel *xdg_toplevel,
-                                   int32_t width, int32_t height,
-                                   struct wl_array *states) {
+                                   struct xdg_toplevel *xdg_toplevel, int32_t w,
+                                   int32_t h, struct wl_array *states) {
   printf("Toplevel Configured\n");
+  // no window geometry event, ignore
+  if (w == 0 && h == 0)
+    return;
+
+  // window resized
+  if (old_w != w && old_h != h) {
+    old_w = w;
+    old_h = h;
+
+    wl_egl_window_resize(wl_egl_window, w, h, 0, 0);
+    wl_surface_commit(surface);
+  }
 }
 
 static void xdg_toplevel_wm_capabilities(void *data,
@@ -187,7 +205,7 @@ void initEGL() {
   EGLConfig config;
   EGLint num_config;
   success =
-      eglChooseConfig(egl_display, config_attribs, &config, 1, &num_config);
+      eglChooseConfig(egl_display, config_attribs, &config, 100, &num_config);
   assert(success && num_config == 1);
 
   /* create context */
@@ -203,7 +221,33 @@ void initEGL() {
   eglMakeCurrent(egl_display, egl_surface, egl_surface, egl_context);
 }
 
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id,
+                                GLenum severity, GLsizei length,
+                                const GLchar *message, const void *userParam) {
+  fprintf(stderr,
+          "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+          (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity,
+          message);
+}
+
 int main() {
   initWayland();
   initEGL();
+
+  // During init, enable debug output
+  //  glEnable(GL_DEBUG_OUTPUT);
+  //  glDebugMessageCallback(MessageCallback, 0);
+  printf("\n\nVersion %s\n\n", glGetString(GL_VERSION));
+  while (true) {
+    wl_display_dispatch_pending(display);
+
+    glClearColor(1.0, 1.0, 0.0, 1.0);
+    assert(glGetError() == 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    assert(glGetError() == 0);
+    glFlush();
+    assert(glGetError() == 0);
+
+    eglSwapBuffers(egl_display, egl_surface);
+  }
 }
