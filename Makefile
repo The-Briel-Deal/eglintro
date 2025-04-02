@@ -13,10 +13,10 @@ build/:
 build/%.o: src/%.c $(HEADERS) | build/
 	gcc $< -c $(CFLAGS) -o $@
 
-build/protocols/include/xdg-shell.h: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
+build/protocols/include/xdg-shell.h: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml | build/
 	wayland-scanner client-header $< $@
 
-build/protocols/src/xdg-shell.c: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
+build/protocols/src/xdg-shell.c: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml | build/
 	wayland-scanner private-code $< $@
 
 build/protocols/xdg-shell.o: build/protocols/src/xdg-shell.c
