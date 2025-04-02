@@ -72,17 +72,20 @@ static void xdg_toplevel_wm_capabilities(void *data,
 
   int *capability;
   wl_array_for_each(capability, capabilities) {
-
     printf("    Capability - '");
+
 #define CASE_STR(value)                                                        \
   case value:                                                                  \
-    printf(#value); break;
+    printf(#value);                                                            \
+    break;
+
     switch (*capability) {
       CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU)
       CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE)
       CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN)
       CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE)
     }
+
 #undef CASE_STR
 
     printf("'.\n");
