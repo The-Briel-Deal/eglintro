@@ -2,11 +2,13 @@
 #include <GL/glcorearb.h>
 #include <GL/glext.h>
 #include <stdbool.h>
+#include <wayland-util.h>
 
-GLuint vbo          = 0;
-GLuint vao          = 0;
-GLuint vertexShader = 0;
-GLuint fragShader   = 0;
+GLuint vbo            = 0;
+GLuint vao            = 0;
+GLuint vert_shader    = 0;
+GLuint frag_shader    = 0;
+GLuint shader_program = 0;
 
 struct vertex {
   float x;
@@ -18,7 +20,7 @@ struct triangle {
   struct vertex v2;
   struct vertex v3;
 };
-static char vert_shader[] =
+const char *vert_shader_src =
     "#version 450 core\n"
     "layout (location = 0) in vec2 aPos;\n"
     "out vec4 vertexColor;\n"
@@ -29,7 +31,7 @@ static char vert_shader[] =
     "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
     "}\n";
 
-static char frag_shader[] =
+const char *frag_shader_src =
     "#version 450 core\n"
     "in vec4 vertexColor;\n"
     "out vec4 FragColor;\n"
@@ -39,7 +41,24 @@ static char frag_shader[] =
     "    FragColor = vertexColor;\n"
     "}\n";
 
-bool gf_draw_box(float x, float y, float width, float height) {
+bool gf_compile_shaders() {
+  vert_shader = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vert_shader, 1, &vert_shader_src, NULL);
+  glCompileShader(vert_shader);
+
+  frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(frag_shader, 1, &frag_shader_src, NULL);
+  glCompileShader(frag_shader);
+
+  shader_program = glCreateProgram();
+  glAttachShader(shader_program, vert_shader);
+  glAttachShader(shader_program, frag_shader);
+  glLinkProgram(shader_program);
+
+  return true;
+}
+
+bool gf_create_triangle() {
   glCreateBuffers(1, &vbo);
   struct triangle triangle = {
       {.x = 0.5,  .y = -0.5},
@@ -56,4 +75,11 @@ bool gf_draw_box(float x, float y, float width, float height) {
   glVertexArrayAttribBinding(vao, 0, 0);
 
   return true;
+}
+
+bool gf_draw_triangle() {
+  glUseProgram(shader_program);
+  glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	return true;
 }

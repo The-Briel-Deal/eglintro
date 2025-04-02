@@ -11,4 +11,8 @@
 //! same principles.
 bool gf_draw_box(float x, float y, float width, float height);
 
+bool gf_compile_shaders();
+bool gf_create_triangle();
+bool gf_draw_triangle();
+
 #endif

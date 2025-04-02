@@ -12,6 +12,7 @@
 #include <wayland-egl.h>
 #include <wayland-util.h>
 
+#include "draw.h"
 #include "egl.h"
 #include "window.h"
 
@@ -23,12 +24,17 @@ int main() {
   init_egl(&egl_state, window.display, window.wl_egl_window);
 
   printf("\n\nVersion %s\n\n", glGetString(GL_VERSION));
+
+  gf_compile_shaders();
+  gf_create_triangle();
   while (true) {
     wl_display_dispatch_pending(window.display);
 
     glClearColor(1.0, 1.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
+
+		gf_draw_triangle();
 
     eglSwapBuffers(egl_state.display, egl_state.surface);
   }
