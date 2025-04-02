@@ -1,4 +1,10 @@
+#include <GL/glcorearb.h>
 #include <stdbool.h>
 
-//bool gf_draw_box(float x, float y, float width, float height) {
-//}
+GLuint vbo = 0;
+
+bool gf_draw_box(float x, float y, float width, float height) {
+  glCreateBuffers(1, &vbo);
+  //	glNamedBufferStorage()
+	return true;
+}

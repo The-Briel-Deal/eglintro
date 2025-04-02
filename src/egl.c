@@ -1,6 +1,3 @@
-// Enabling for Debug logging.
-#define GL_GLEXT_PROTOTYPES
-
 #include <EGL/egl.h>
 #include <EGL/eglplatform.h>
 #include <GL/gl.h>
