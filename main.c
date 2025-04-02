@@ -222,7 +222,7 @@ void initWayland() {
 }
 
 void initEGL() {
-  EGLDisplay egl_display = eglGetDisplay(display);
+  egl_display = eglGetDisplay(display);
   assert(egl_display != EGL_NO_DISPLAY);
   EGLBoolean success;
   EGLint major;
@@ -275,12 +275,12 @@ int main() {
     wl_display_dispatch_pending(display);
 
     glClearColor(1.0, 1.0, 0.0, 1.0);
-    assert(glGetError() == 0);
     glClear(GL_COLOR_BUFFER_BIT);
-    assert(glGetError() == 0);
     glFlush();
-    assert(glGetError() == 0);
 
-    eglSwapBuffers(egl_display, egl_surface);
+    bool success = eglSwapBuffers(egl_display, egl_surface);
+    printf("\neglSwapBuffers error: \n%s\n\n",
+           eglGetErrorString(eglGetError()));
+    assert(success);
   }
 }
