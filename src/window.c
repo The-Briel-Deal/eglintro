@@ -23,7 +23,7 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
   } else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
     window->xdg_wm_base =
         wl_registry_bind(registry, id, &xdg_wm_base_interface, 5);
-  }
+  } // else if (strcmp(interface) == 0)
 }
 static void global_registry_remover(void *data, struct wl_registry *registry,
                                     uint32_t id) {

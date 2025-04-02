@@ -22,7 +22,26 @@ build/protocols/src/xdg-shell.c: /usr/share/wayland-protocols/stable/xdg-shell/x
 build/protocols/xdg-shell.o: build/protocols/src/xdg-shell.c
 	gcc $< -c $(CFLAGS) -o $@
 
-eglintro: $(OBJECTS) build/protocols/xdg-shell.o
+build/protocols/include/cursor-shape.h: /usr/share/wayland-protocols/staging/cursor-shape/cursor-shape-v1.xml | build/
+	wayland-scanner client-header $< $@
+
+build/protocols/src/cursor-shape.c: /usr/share/wayland-protocols/staging/cursor-shape/cursor-shape-v1.xml | build/
+	wayland-scanner private-code $< $@
+
+build/protocols/cursor-shape.o: build/protocols/src/cursor-shape.c
+	gcc $< -c $(CFLAGS) -o $@
+
+# For some reason cursor-shape depends on tablet-tool
+build/protocols/include/tablet.h: /usr/share/wayland-protocols/stable/tablet/tablet-v2.xml | build/
+	wayland-scanner client-header $< $@
+
+build/protocols/src/tablet.c: /usr/share/wayland-protocols/stable/tablet/tablet-v2.xml | build/
+	wayland-scanner private-code $< $@
+
+build/protocols/tablet.o: build/protocols/src/tablet.c
+	gcc $< -c $(CFLAGS) -o $@
+
+eglintro: $(OBJECTS) build/protocols/xdg-shell.o build/protocols/cursor-shape.o build/protocols/tablet.o
 	gcc $^ $(CFLAGS) -o $@
 
 run: eglintro
