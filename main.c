@@ -1,7 +1,12 @@
+
+// Enabling for Debug logging.
+#define GL_GLEXT_PROTOTYPES
+
 #include <EGL/egl.h>
 #include <EGL/eglplatform.h>
 #include <GL/gl.h>
-#include <GLES2/gl2.h>
+#include <GL/glcorearb.h>
+#include <GL/glext.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -263,8 +268,8 @@ int main() {
   initEGL();
 
   // During init, enable debug output
-  //  glEnable(GL_DEBUG_OUTPUT);
-  //  glDebugMessageCallback(MessageCallback, 0);
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(MessageCallback, 0);
   printf("\n\nVersion %s\n\n", glGetString(GL_VERSION));
   while (true) {
     wl_display_dispatch_pending(display);
