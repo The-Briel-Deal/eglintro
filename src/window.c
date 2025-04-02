@@ -9,6 +9,7 @@
 
 #include "window.h"
 
+
 /* wl_registry Listener */
 static void global_registry_handler(void *data, struct wl_registry *registry,
                                     uint32_t id, const char *interface,
@@ -30,6 +31,7 @@ static void global_registry_remover(void *data, struct wl_registry *registry,
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler, global_registry_remover};
 
+
 /* xdg_wm_base Listener */
 static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
                              uint32_t serial) {
@@ -38,6 +40,7 @@ static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
 static const struct xdg_wm_base_listener xdg_wm_base_listener = {
     .ping = xdg_wm_base_ping};
 
+
 /* xdg_surface Listener */
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
                                   uint32_t serial) {
@@ -45,6 +48,7 @@ static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
 }
 static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = xdg_surface_configure};
+
 
 /* xdg_toplevel Listener */
 int32_t old_w, old_h;
@@ -65,7 +69,6 @@ static void xdg_toplevel_configure(void *data,
     wl_surface_commit(window->surface);
   }
 }
-
 static void xdg_toplevel_wm_capabilities(void *data,
                                          struct xdg_toplevel *xdg_toplevel,
                                          struct wl_array *capabilities) {
@@ -76,9 +79,7 @@ static void xdg_toplevel_wm_capabilities(void *data,
     printf("    Capability - '");
 
 #define CASE_STR(value)                                                        \
-  case value:                                                                  \
-    printf(#value);                                                            \
-    break;
+  case value: printf(#value); break;
 
     switch (*capability) {
       CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU)
@@ -92,10 +93,10 @@ static void xdg_toplevel_wm_capabilities(void *data,
     printf("'.\n");
   }
 }
-
 static const struct xdg_toplevel_listener toplevel_listener = {
-    .configure = xdg_toplevel_configure,
+    .configure       = xdg_toplevel_configure,
     .wm_capabilities = xdg_toplevel_wm_capabilities};
+
 
 bool init_gf_window(struct gf_window *window) {
   int err;

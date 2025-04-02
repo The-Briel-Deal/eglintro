@@ -1,0 +1,19 @@
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false # For some reason this is very broken with multiline string literals.
+AlignConsecutiveMacros:
+  Enabled: true
+  AlignCompound: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCaseColons: true
+AlignArrayOfStructures: Left
+AlignAfterOpenBracket: Align
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: None
+IndentCaseLabels: true
+AlwaysBreakBeforeMultilineStrings: true
+MaxEmptyLinesToKeep: 2
