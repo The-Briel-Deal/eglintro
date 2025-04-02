@@ -18,7 +18,7 @@
 #include <wayland-egl.h>
 #include <wayland-util.h>
 
-#include "xdg_shell.h"
+#include "xdg-shell.h"
 
 struct wl_display *display = NULL;
 struct wl_compositor *compositor = NULL;

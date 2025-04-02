@@ -1,13 +1,29 @@
-CFLAGS  := -std=gnu99 -Iinclude -Wall -Werror -lEGL -lwayland-egl -lwayland-client -lGL
+CFLAGS  := -std=gnu99 -Iinclude -Ibuild/protocols/include -Wall -Werror -lEGL -lwayland-egl -lwayland-client -lGL
+HEADERS := $(wildcard include/*.h) build/protocols/include/xdg-shell.h
+SOURCES := $(wildcard src/*.c)
+OBJECTS := $(addprefix build/, $(notdir $(SOURCES:.c=.o)))
 
-include/xdg_shell.h: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
+build/:
+	mkdir -p build
+	mkdir -p build/protocols
+	mkdir -p build/protocols/src
+	mkdir -p build/protocols/include
+
+# Compile Object Files
+build/%.o: src/%.c $(HEADERS) | build/
+	gcc $< -c $(CFLAGS) -o $@
+
+build/protocols/include/xdg-shell.h: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
 	wayland-scanner client-header $< $@
 
-xdg_shell.c: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
+build/protocols/src/xdg-shell.c: /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
 	wayland-scanner private-code $< $@
 
-eglintro: main.c include/xdg_shell.h xdg_shell.c
-	gcc $< xdg_shell.c $(CFLAGS) -o $@
+build/protocols/xdg-shell.o: build/protocols/src/xdg-shell.c
+	gcc $< -c $(CFLAGS) -o $@
+
+eglintro: build/main.o build/protocols/xdg-shell.o
+	gcc $^ $(CFLAGS) -o $@
 
 run: eglintro
 	./eglintro

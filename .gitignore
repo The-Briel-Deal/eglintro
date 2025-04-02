@@ -1,5 +1,4 @@
 eglintro
-include/xdg_shell.h
-xdg_shell.c
 compile_commands.json
 .cache/
+build/
