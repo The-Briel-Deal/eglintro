@@ -1,3 +1,4 @@
+#include <GL/gl.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -61,10 +62,11 @@ static void xdg_toplevel_configure(void *data,
     return;
 
   // window resized
-  if (old_w != w && old_h != h) {
+  if (old_w != w || old_h != h) {
     old_w = w;
     old_h = h;
 
+    glViewport(0, 0, w, h);
     wl_egl_window_resize(window->wl_egl_window, w, h, 0, 0);
     wl_surface_commit(window->surface);
   }
