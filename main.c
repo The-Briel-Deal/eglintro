@@ -27,7 +27,6 @@ struct wl_surface *surface = NULL;
 struct xdg_surface *xdg_surface = NULL;
 struct xdg_toplevel *xdg_toplevel = NULL;
 struct wl_egl_window *wl_egl_window = NULL;
-struct wl_region *region = NULL;
 EGLDisplay egl_display = EGL_NO_DISPLAY;
 EGLSurface egl_surface = EGL_NO_SURFACE;
 EGLContext egl_context = EGL_NO_CONTEXT;
@@ -213,10 +212,7 @@ void initWayland() {
   wl_surface_commit(surface);
 
   /* create wl window */
-  region = wl_compositor_create_region(compositor);
 
-  wl_region_add(region, 0, 0, 480, 360);
-  wl_surface_set_opaque_region(surface, region);
   wl_egl_window = wl_egl_window_create(surface, 480, 360);
   assert(wl_egl_window != NULL);
 }
