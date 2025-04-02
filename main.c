@@ -27,23 +27,48 @@ EGLDisplay egl_display = EGL_NO_DISPLAY;
 EGLSurface egl_surface = EGL_NO_SURFACE;
 EGLContext egl_context = EGL_NO_CONTEXT;
 
-static const EGLint config_attribs[] = {EGL_SURFACE_TYPE,
-                                        EGL_WINDOW_BIT,
-                                        EGL_CONFORMANT,
-                                        EGL_OPENGL_BIT,
-                                        EGL_RENDERABLE_TYPE,
-                                        EGL_OPENGL_BIT,
-                                        EGL_RED_SIZE,
-                                        8,
-                                        EGL_GREEN_SIZE,
-                                        8,
-                                        EGL_BLUE_SIZE,
-                                        8,
-                                        EGL_NONE};
+static const EGLint config_attribs[] = {
+    EGL_SURFACE_TYPE,
+    EGL_WINDOW_BIT,
+    EGL_CONFORMANT,
+    EGL_OPENGL_BIT,
+    EGL_RENDERABLE_TYPE,
+    EGL_OPENGL_BIT,
+    EGL_COLOR_BUFFER_TYPE,
+    EGL_RGB_BUFFER,
 
-static const EGLint context_attribs[] = {
+    EGL_RED_SIZE,
+    8,
+    EGL_GREEN_SIZE,
+    8,
+    EGL_BLUE_SIZE,
+    8,
+    EGL_DEPTH_SIZE,
+    24,
+    EGL_STENCIL_SIZE,
+    8,
+
+    EGL_NONE,
+};
+
+static const EGLint surface_attribs[] = {
     EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_LINEAR,
     EGL_RENDER_BUFFER, EGL_BACK_BUFFER,
+    EGL_NONE,
+};
+
+static const EGLint context_attribs[] = {
+    EGL_CONTEXT_MAJOR_VERSION,
+    4,
+    EGL_CONTEXT_MINOR_VERSION,
+    5,
+    EGL_CONTEXT_OPENGL_PROFILE_MASK,
+    EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+#ifndef NDEBUG
+
+    EGL_CONTEXT_OPENGL_DEBUG,
+    EGL_TRUE,
+#endif
     EGL_NONE,
 };
 
@@ -201,11 +226,14 @@ void initEGL() {
   assert(success);
   printf("EGL Version - v%i.%i\n", major, minor);
 
+  EGLBoolean ok = eglBindAPI(EGL_OPENGL_API);
+  assert(ok);
+
   /* config selection */
   EGLConfig config;
   EGLint num_config;
   success =
-      eglChooseConfig(egl_display, config_attribs, &config, 100, &num_config);
+      eglChooseConfig(egl_display, config_attribs, &config, 1, &num_config);
   assert(success && num_config == 1);
 
   /* create context */
@@ -215,7 +243,7 @@ void initEGL() {
 
   /* Init egl_surface */
   egl_surface = eglCreateWindowSurface(
-      egl_display, config, (EGLNativeWindowType)wl_egl_window, NULL);
+      egl_display, config, (EGLNativeWindowType)wl_egl_window, surface_attribs);
   assert(egl_surface != NULL);
 
   eglMakeCurrent(egl_display, egl_surface, egl_surface, egl_context);
