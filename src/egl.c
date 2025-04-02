@@ -1,12 +1,16 @@
-#include "egl.h"
+// Enabling for Debug logging.
+#define GL_GLEXT_PROTOTYPES
+
 #include <EGL/egl.h>
 #include <EGL/eglplatform.h>
+#include <GL/gl.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <wayland-client-core.h>
 #include <wayland-egl-core.h>
 
+#include "egl.h"
 
 static const EGLint config_attribs[] = {
     EGL_SURFACE_TYPE,
@@ -77,6 +81,15 @@ const char *eglGetErrorString(EGLint error) {
 #undef CASE_STR
 }
 
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id,
+                                GLenum severity, GLsizei length,
+                                const GLchar *message, const void *userParam) {
+  fprintf(stderr,
+          "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+          (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity,
+          message);
+}
+
 bool init_egl(struct gf_egl_state *gf_egl_state, struct wl_display *wl_display,
               struct wl_egl_window *wl_egl_window) {
   gf_egl_state->display = eglGetDisplay(wl_display);
@@ -112,5 +125,8 @@ bool init_egl(struct gf_egl_state *gf_egl_state, struct wl_display *wl_display,
   eglMakeCurrent(gf_egl_state->display, gf_egl_state->surface,
                  gf_egl_state->surface, gf_egl_state->context);
 
+  // During init, enable debug output
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(MessageCallback, 0);
   return true;
 }
