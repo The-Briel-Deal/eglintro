@@ -1,5 +1,6 @@
 
 // Enabling for Debug logging.
+#include "window.h"
 #define GL_GLEXT_PROTOTYPES
 
 #include <EGL/egl.h>
@@ -11,22 +12,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 #include <wayland-egl.h>
 #include <wayland-util.h>
 
-#include "xdg-shell.h"
-
-struct wl_display *display = NULL;
-struct wl_compositor *compositor = NULL;
-struct xdg_wm_base *xdg_wm_base = NULL;
-struct wl_surface *surface = NULL;
-struct xdg_surface *xdg_surface = NULL;
-struct xdg_toplevel *xdg_toplevel = NULL;
-struct wl_egl_window *wl_egl_window = NULL;
 EGLDisplay egl_display = EGL_NO_DISPLAY;
 EGLSurface egl_surface = EGL_NO_SURFACE;
 EGLContext egl_context = EGL_NO_CONTEXT;
@@ -76,77 +67,6 @@ static const EGLint context_attribs[] = {
     EGL_NONE,
 };
 
-static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
-                             uint32_t serial) {
-  printf("ponged (:\n");
-  xdg_wm_base_pong(xdg_wm_base, serial);
-}
-
-static const struct xdg_wm_base_listener xdg_wm_base_listener = {
-    .ping = xdg_wm_base_ping};
-
-static void global_registry_handler(void *data, struct wl_registry *registry,
-                                    uint32_t id, const char *interface,
-                                    uint32_t version) {
-  printf("Got a registry event for %s id %d\n", interface, id);
-  if (strcmp(interface, "wl_compositor") == 0) {
-    compositor = wl_registry_bind(registry, id, &wl_compositor_interface, 6);
-  } else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
-    xdg_wm_base = wl_registry_bind(registry, id, &xdg_wm_base_interface, 5);
-  }
-}
-
-static void global_registry_remover(void *data, struct wl_registry *registry,
-                                    uint32_t id) {
-  printf("Got a registry losing event for %d\n", id);
-}
-
-static const struct wl_registry_listener registry_listener = {
-    global_registry_handler, global_registry_remover};
-
-int32_t old_w, old_h;
-static void xdg_toplevel_configure(void *data,
-                                   struct xdg_toplevel *xdg_toplevel, int32_t w,
-                                   int32_t h, struct wl_array *states) {
-  printf("Toplevel Configured\n");
-  // no window geometry event, ignore
-  if (w == 0 && h == 0)
-    return;
-
-  // window resized
-  if (old_w != w && old_h != h) {
-    old_w = w;
-    old_h = h;
-
-    wl_egl_window_resize(wl_egl_window, w, h, 0, 0);
-    wl_surface_commit(surface);
-  }
-}
-
-static void xdg_toplevel_wm_capabilities(void *data,
-                                         struct xdg_toplevel *xdg_toplevel,
-                                         struct wl_array *capabilities) {
-  printf("xdg toplevel wm_capabilities:\n");
-
-  int *capability;
-  wl_array_for_each(capability, capabilities) {
-    printf("Capability - %i\n", *capability);
-  }
-}
-
-static const struct xdg_toplevel_listener toplevel_listener = {
-    .configure = xdg_toplevel_configure,
-    .wm_capabilities = xdg_toplevel_wm_capabilities};
-
-static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
-                                  uint32_t serial) {
-  printf("xdg_surface configured\n");
-  xdg_surface_ack_configure(xdg_surface, serial);
-}
-
-static const struct xdg_surface_listener xdg_surface_listener = {
-    .configure = xdg_surface_configure};
-
 const char *eglGetErrorString(EGLint error) {
 #define CASE_STR(value)                                                        \
   case value:                                                                  \
@@ -173,52 +93,9 @@ const char *eglGetErrorString(EGLint error) {
 #undef CASE_STR
 }
 
-void initWayland() {
-  /* connect to compositor */
-  display = wl_display_connect(NULL);
-  assert(display != NULL);
-
-  struct wl_registry *registry = wl_display_get_registry(display);
-  wl_registry_add_listener(registry, &registry_listener, NULL);
-
-  wl_display_dispatch(display);
-  wl_display_roundtrip(display);
-  assert(xdg_wm_base != NULL);
-  assert(compositor != NULL);
-
-  xdg_wm_base_add_listener(xdg_wm_base, &xdg_wm_base_listener, NULL);
-
-  /* create wl_surface */
-  surface = wl_compositor_create_surface(compositor);
-  assert(surface != NULL);
-
-  /* create xdg_surface */
-  xdg_surface = xdg_wm_base_get_xdg_surface(xdg_wm_base, surface);
-  assert(xdg_surface != NULL);
-
-  int err;
-  err = xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, NULL);
-  assert(err == 0);
-
-  /* create toplevel */
-  xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
-  assert(xdg_toplevel);
-
-  xdg_toplevel_set_title(xdg_toplevel, "test title");
-
-  err = xdg_toplevel_add_listener(xdg_toplevel, &toplevel_listener, NULL);
-  assert(err == 0);
-
-  wl_surface_commit(surface);
-
-  /* create wl window */
-
-  wl_egl_window = wl_egl_window_create(surface, 480, 360);
-  assert(wl_egl_window != NULL);
-}
-
-void initEGL() {
-  egl_display = eglGetDisplay(display);
+void initEGL(struct wl_display *wl_display,
+             struct wl_egl_window *wl_egl_window) {
+  egl_display = eglGetDisplay(wl_display);
   assert(egl_display != EGL_NO_DISPLAY);
   EGLBoolean success;
   EGLint major;
@@ -260,15 +137,16 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id,
 }
 
 int main() {
-  initWayland();
-  initEGL();
+  struct gf_window window;
+  init_gf_window(&window);
+  initEGL(window.display, window.wl_egl_window);
 
   // During init, enable debug output
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
   printf("\n\nVersion %s\n\n", glGetString(GL_VERSION));
   while (true) {
-    wl_display_dispatch_pending(display);
+    wl_display_dispatch_pending(window.display);
 
     glClearColor(1.0, 1.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);

@@ -22,7 +22,7 @@ build/protocols/src/xdg-shell.c: /usr/share/wayland-protocols/stable/xdg-shell/x
 build/protocols/xdg-shell.o: build/protocols/src/xdg-shell.c
 	gcc $< -c $(CFLAGS) -o $@
 
-eglintro: build/main.o build/protocols/xdg-shell.o
+eglintro: $(OBJECTS) build/protocols/xdg-shell.o
 	gcc $^ $(CFLAGS) -o $@
 
 run: eglintro
