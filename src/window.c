@@ -68,14 +68,25 @@ static void xdg_toplevel_configure(void *data,
 static void xdg_toplevel_wm_capabilities(void *data,
                                          struct xdg_toplevel *xdg_toplevel,
                                          struct wl_array *capabilities) {
-  //! Currently unused
+  printf("xdg-toplevel wm_capabilities:\n");
 
-  // printf("xdg-toplevel wm_capabilities:\n");
+  int *capability;
+  wl_array_for_each(capability, capabilities) {
 
-  // int *capability;
-  // wl_array_for_each(capability, capabilities) {
-  //   printf("    Capability - %i\n", *capability);
-  // }
+    printf("    Capability - '");
+#define CASE_STR(value)                                                        \
+  case value:                                                                  \
+    printf(#value); break;
+    switch (*capability) {
+      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU)
+      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE)
+      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN)
+      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE)
+    }
+#undef CASE_STR
+
+    printf("'.\n");
+  }
 }
 
 static const struct xdg_toplevel_listener toplevel_listener = {
