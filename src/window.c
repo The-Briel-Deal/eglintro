@@ -9,6 +9,7 @@
 
 #include "window.h"
 
+/* wl_registry Listener */
 static void global_registry_handler(void *data, struct wl_registry *registry,
                                     uint32_t id, const char *interface,
                                     uint32_t version) {
@@ -22,23 +23,22 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
         wl_registry_bind(registry, id, &xdg_wm_base_interface, 5);
   }
 }
-
 static void global_registry_remover(void *data, struct wl_registry *registry,
                                     uint32_t id) {
   printf("Got a registry losing event for %d\n", id);
 }
-
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler, global_registry_remover};
 
+/* xdg_wm_base Listener */
 static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
                              uint32_t serial) {
   xdg_wm_base_pong(xdg_wm_base, serial);
 }
-
 static const struct xdg_wm_base_listener xdg_wm_base_listener = {
     .ping = xdg_wm_base_ping};
 
+/* xdg_surface Listener */
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
                                   uint32_t serial) {
   xdg_surface_ack_configure(xdg_surface, serial);
@@ -46,6 +46,7 @@ static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
 static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = xdg_surface_configure};
 
+/* xdg_toplevel Listener */
 int32_t old_w, old_h;
 static void xdg_toplevel_configure(void *data,
                                    struct xdg_toplevel *xdg_toplevel, int32_t w,
@@ -129,19 +130,14 @@ bool init_gf_window(struct gf_window *window) {
   /* create toplevel */
   window->xdg_toplevel = xdg_surface_get_toplevel(window->xdg_surface);
   assert(window->xdg_toplevel);
-
   xdg_toplevel_set_title(window->xdg_toplevel, "test title");
-
   err = xdg_toplevel_add_listener(window->xdg_toplevel, &toplevel_listener,
                                   window);
   assert(err == 0);
-
   wl_surface_commit(window->surface);
 
   /* create wl window */
-
   window->wl_egl_window = wl_egl_window_create(window->surface, 480, 360);
   assert(window->wl_egl_window != NULL);
-
   return window;
 }
