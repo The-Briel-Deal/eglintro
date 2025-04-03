@@ -37,7 +37,9 @@ static void global_registry_remover(void *data, struct wl_registry *registry,
   printf("Got a registry losing event for %d\n", id);
 }
 static const struct wl_registry_listener registry_listener = {
-    global_registry_handler, global_registry_remover};
+    global_registry_handler,
+    global_registry_remover,
+};
 
 
 /* xdg_wm_base Listener */
@@ -46,7 +48,8 @@ static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base,
   xdg_wm_base_pong(xdg_wm_base, serial);
 }
 static const struct xdg_wm_base_listener xdg_wm_base_listener = {
-    .ping = xdg_wm_base_ping};
+    .ping = xdg_wm_base_ping,
+};
 
 
 /* xdg_surface Listener */
@@ -55,7 +58,8 @@ static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface,
   xdg_surface_ack_configure(xdg_surface, serial);
 }
 static const struct xdg_surface_listener xdg_surface_listener = {
-    .configure = xdg_surface_configure};
+    .configure = xdg_surface_configure,
+};
 
 
 /* xdg_toplevel Listener */
@@ -104,7 +108,44 @@ static void xdg_toplevel_wm_capabilities(void *data,
 }
 static const struct xdg_toplevel_listener toplevel_listener = {
     .configure       = xdg_toplevel_configure,
-    .wm_capabilities = xdg_toplevel_wm_capabilities};
+    .wm_capabilities = xdg_toplevel_wm_capabilities,
+};
+
+
+static void wl_pointer_leave(void *data, struct wl_pointer *wl_pointer,
+                             uint32_t serial, struct wl_surface *surface) {
+  printf("\n\nwl_pointer.leave() called\n\n");
+}
+static void wl_pointer_enter(void *data, struct wl_pointer *wl_pointer,
+                             uint32_t serial, struct wl_surface *surface,
+                             wl_fixed_t surface_x, wl_fixed_t surface_y) {
+  printf("\n\nwl_pointer.enter() called\n\n");
+}
+
+static void wl_pointer_frame(void *data, struct wl_pointer *wl_pointer) {
+  printf("\n\nwl_pointer.frame() called\n\n");
+}
+
+static void wl_pointer_motion(void *data, struct wl_pointer *wl_pointer,
+                              uint32_t time, wl_fixed_t surface_x,
+                              wl_fixed_t surface_y) {
+  printf("\n\nwl_pointer.motion() called\n\n");
+}
+
+static void wl_pointer_button(void *data, struct wl_pointer *wl_pointer,
+                              uint32_t serial, uint32_t time, uint32_t button,
+                              uint32_t state) {
+  printf("\n\nwl_pointer.button() called\n\n");
+}
+
+// TODO: Add axis (scrolling) events.
+static const struct wl_pointer_listener pointer_listener = {
+    .leave  = wl_pointer_leave,
+    .enter  = wl_pointer_enter,
+    .frame  = wl_pointer_frame,
+    .motion = wl_pointer_motion,
+    .button = wl_pointer_button,
+};
 
 
 bool init_gf_window(struct gf_window *window) {
@@ -150,9 +191,12 @@ bool init_gf_window(struct gf_window *window) {
   window->wl_egl_window = wl_egl_window_create(window->surface, 480, 360);
   assert(window->wl_egl_window != NULL);
 
+  /* get pointer */
   window->wl_pointer          = wl_seat_get_pointer(window->wl_seat);
   window->cursor_shape_device = wp_cursor_shape_manager_v1_get_pointer(
       window->cursor_shape_manager, window->wl_pointer);
+
+  wl_pointer_add_listener(window->wl_pointer, &pointer_listener, NULL);
 
   return window;
 }
