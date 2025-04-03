@@ -19,7 +19,7 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
                                     uint32_t version) {
   struct gf_window *window = data;
 
-  if (strcmp(interface, "wl_compositor") == 0) {
+  if (strcmp(interface, wl_compositor_interface.name) == 0) {
     window->compositor =
         wl_registry_bind(registry, id, &wl_compositor_interface, 6);
   } else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
@@ -35,7 +35,7 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
 }
 static void global_registry_remover(void *data, struct wl_registry *registry,
                                     uint32_t id) {
-  printf("Got a registry losing event for %d\n", id);
+  gf_log(INFO_LOG, "wl_registry.remove() called");
 }
 static const struct wl_registry_listener registry_listener = {
     global_registry_handler,
@@ -140,7 +140,7 @@ static void wl_pointer_motion(void *data, struct wl_pointer *wl_pointer,
 static void wl_pointer_button(void *data, struct wl_pointer *wl_pointer,
                               uint32_t serial, uint32_t time, uint32_t button,
                               uint32_t state) {
-  gf_log(INFO_LOG, "\n\nwl_pointer.button() called\n\n");
+  gf_log(INFO_LOG, "wl_pointer.button() called");
 }
 
 // TODO: Add axis (scrolling) events.
