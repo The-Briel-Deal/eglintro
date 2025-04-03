@@ -89,7 +89,7 @@ gf_create_triangle(const struct triangle_verts *triangle_verts) {
       &triangle_obj_list.objs[triangle_obj_list.count++];
   glCreateBuffers(1, &triangle_obj->vbo);
   glNamedBufferStorage(triangle_obj->vbo, sizeof(struct triangle_verts),
-                       &triangle_verts, GL_DYNAMIC_STORAGE_BIT);
+                       triangle_verts, GL_DYNAMIC_STORAGE_BIT);
 
   glCreateVertexArrays(1, &triangle_obj->vao);
   glVertexArrayVertexBuffer(triangle_obj->vao, 0, triangle_obj->vbo, 0,

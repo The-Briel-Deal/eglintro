@@ -40,7 +40,7 @@ const char *frag_shader_src =
 struct triangle_verts triangle_verts = {
     {.x = 0.5,  .y = -0.5},
     {.x = 0.0,  .y = 0.5 },
-    {.x = -1.5, .y = -0.5},
+    {.x = -0.5, .y = -0.5},
 };
 
 int main() {
