@@ -1,8 +1,9 @@
 #ifndef GF_WINDOW_H
 #define GF_WINDOW_H
 
-#include "cursor-shape.h"
 #include <stdbool.h>
+
+#include "cursor-shape.h"
 
 struct gf_window {
   struct wl_display *display;

@@ -25,7 +25,7 @@ static inline void gf_log(enum log severity, char *fmt_msg, ...) {
     vprintf(fmt_msg, args);
   }
   va_end(args);
-	printf("\n");
+  printf("\n");
 }
 
 #endif

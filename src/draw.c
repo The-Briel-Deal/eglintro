@@ -80,6 +80,6 @@ bool gf_create_triangle() {
 bool gf_draw_triangle() {
   glUseProgram(shader_program);
   glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	return true;
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+  return true;
 }

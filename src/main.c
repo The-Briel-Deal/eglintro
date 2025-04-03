@@ -13,8 +13,8 @@
 
 #include "draw.h"
 #include "egl.h"
-#include "window.h"
 #include "log.h"
+#include "window.h"
 
 
 int main() {
