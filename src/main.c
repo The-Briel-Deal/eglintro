@@ -53,6 +53,7 @@ int main() {
 
   struct shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
   struct triangle_obj *triangle = gf_create_triangle(&triangle_verts);
+  gf_set_triangle_shader(triangle, shader);
   while (true) {
     wl_display_dispatch_pending(window.display);
 
@@ -60,7 +61,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
 
-    gf_draw_triangle(shader, triangle);
+    gf_draw_triangle(triangle);
 
     eglSwapBuffers(egl_state.display, egl_state.surface);
   }

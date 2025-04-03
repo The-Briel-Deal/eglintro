@@ -100,8 +100,17 @@ gf_create_triangle(const struct triangle_verts *triangle_verts) {
   return triangle_obj;
 }
 
-bool gf_draw_triangle(struct shader *shader, struct triangle_obj *triangle) {
-  glUseProgram(shader->program);
+bool gf_set_triangle_shader(struct triangle_obj *triangle,
+                            struct shader *shader) {
+  if (triangle->shader == shader) {
+    return false;
+  }
+  triangle->shader = shader;
+  return true;
+}
+
+bool gf_draw_triangle(struct triangle_obj *triangle) {
+  glUseProgram(triangle->shader->program);
   glBindVertexArray(triangle->vao);
   glDrawArrays(GL_TRIANGLES, 0, 3);
   return true;

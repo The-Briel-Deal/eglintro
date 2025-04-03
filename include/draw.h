@@ -33,6 +33,9 @@ struct shader *gf_compile_shaders(const char *vert_shader_src,
 //! \return An opaque pointer to the resulting triangle object.
 struct triangle_obj *
 gf_create_triangle(const struct triangle_verts *triangle_verts);
-bool gf_draw_triangle(struct shader *shader, struct triangle_obj *triangle);
+
+bool gf_set_triangle_shader(struct triangle_obj* triangle, struct shader* shader);
+
+bool gf_draw_triangle(struct triangle_obj *triangle);
 
 #endif
