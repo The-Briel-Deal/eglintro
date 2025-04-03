@@ -16,6 +16,32 @@
 #include "log.h"
 #include "window.h"
 
+const char *vert_shader_src =
+    "#version 450 core\n"
+    "layout (location = 0) in vec2 aPos;\n"
+    "out vec4 vertexColor;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    gl_Position = vec4(aPos, 0.0, 1.0);\n"
+    "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+    "}\n";
+
+const char *frag_shader_src =
+    "#version 450 core\n"
+    "in vec4 vertexColor;\n"
+    "out vec4 FragColor;\n"
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    FragColor = vertexColor;\n"
+    "}\n";
+
+struct triangle_verts triangle_verts = {
+    {.x = 0.5,  .y = -0.5},
+    {.x = 0.0,  .y = 0.5 },
+    {.x = -1.5, .y = -0.5},
+};
 
 int main() {
   struct gf_window window;
@@ -25,8 +51,8 @@ int main() {
 
   gf_log(INFO_LOG, "Version %s", glGetString(GL_VERSION));
 
-  gf_compile_shaders();
-  gf_create_triangle();
+  struct shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
+  struct triangle_obj *triangle = gf_create_triangle(&triangle_verts);
   while (true) {
     wl_display_dispatch_pending(window.display);
 
@@ -34,7 +60,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
 
-    gf_draw_triangle();
+    gf_draw_triangle(shader, triangle);
 
     eglSwapBuffers(egl_state.display, egl_state.surface);
   }

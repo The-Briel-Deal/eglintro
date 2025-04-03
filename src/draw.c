@@ -4,82 +4,105 @@
 #include <stdbool.h>
 #include <wayland-util.h>
 
-GLuint vbo            = 0;
-GLuint vao            = 0;
-GLuint vert_shader    = 0;
-GLuint frag_shader    = 0;
-GLuint shader_program = 0;
+#include "draw.h"
+#include "log.h"
 
-struct vertex {
-  float x;
-  float y;
+#define TRIANGLE_OBJ_LIST_MAX   128
+#define SHADER_PROGRAM_LIST_MAX 128
+
+
+struct shader {
+  GLuint vert;
+  GLuint frag;
+  GLuint program;
 };
 
-struct triangle {
-  struct vertex v1;
-  struct vertex v2;
-  struct vertex v3;
+struct shader_program_list {
+  int count;
+  int capacity;
+  struct shader shaders[SHADER_PROGRAM_LIST_MAX];
 };
-const char *vert_shader_src =
-    "#version 450 core\n"
-    "layout (location = 0) in vec2 aPos;\n"
-    "out vec4 vertexColor;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = vec4(aPos, 0.0, 1.0);\n"
-    "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
-    "}\n";
 
-const char *frag_shader_src =
-    "#version 450 core\n"
-    "in vec4 vertexColor;\n"
-    "out vec4 FragColor;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    FragColor = vertexColor;\n"
-    "}\n";
+static struct shader_program_list shader_program_list = {
+    .count    = 0,
+    .capacity = SHADER_PROGRAM_LIST_MAX,
+};
 
-bool gf_compile_shaders() {
-  vert_shader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vert_shader, 1, &vert_shader_src, NULL);
-  glCompileShader(vert_shader);
+struct triangle_obj {
+  GLuint vbo;
+  GLuint vao;
+  struct shader *shader;
+};
 
-  frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(frag_shader, 1, &frag_shader_src, NULL);
-  glCompileShader(frag_shader);
+struct triangle_obj_list {
+  int count;
+  int capacity;
+  struct triangle_obj objs[TRIANGLE_OBJ_LIST_MAX];
+};
 
-  shader_program = glCreateProgram();
-  glAttachShader(shader_program, vert_shader);
-  glAttachShader(shader_program, frag_shader);
-  glLinkProgram(shader_program);
+static struct triangle_obj_list triangle_obj_list = {
+    .count    = 0,
+    .capacity = TRIANGLE_OBJ_LIST_MAX,
+};
 
-  return true;
+
+struct shader *gf_compile_shaders(const char *vert_shader_src,
+                                  const char *frag_shader_src) {
+  if (shader_program_list.count + 1 >= shader_program_list.capacity) {
+    gf_log(DEBUG_LOG,
+           "`shader_program_list` has a count of '%i', which is greater than "
+           "it's capacity of '%i'.",
+           shader_program_list.count, shader_program_list.capacity);
+    return NULL;
+  }
+
+  struct shader *shader =
+      &shader_program_list.shaders[shader_program_list.count++];
+
+  shader->vert = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(shader->vert, 1, &vert_shader_src, NULL);
+  glCompileShader(shader->vert);
+
+  shader->frag = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(shader->frag, 1, &frag_shader_src, NULL);
+  glCompileShader(shader->frag);
+
+  shader->program = glCreateProgram();
+  glAttachShader(shader->program, shader->vert);
+  glAttachShader(shader->program, shader->frag);
+  glLinkProgram(shader->program);
+
+  return shader;
 }
 
-bool gf_create_triangle() {
-  glCreateBuffers(1, &vbo);
-  struct triangle triangle = {
-      {.x = 0.5,  .y = -0.5},
-      {.x = 0.0,  .y = 0.5 },
-      {.x = -0.5, .y = -0.5},
-  };
-  glNamedBufferStorage(vbo, sizeof(triangle), &triangle,
-                       GL_DYNAMIC_STORAGE_BIT);
+struct triangle_obj *
+gf_create_triangle(const struct triangle_verts *triangle_verts) {
+  if (triangle_obj_list.count + 1 >= triangle_obj_list.capacity) {
+    gf_log(DEBUG_LOG,
+           "`triangle_obj_list` has a count of '%i', which is greater than "
+           "it's capacity of '%i'.",
+           triangle_obj_list.count, triangle_obj_list.capacity);
+    return NULL;
+  }
 
-  glCreateVertexArrays(1, &vao);
-  glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(struct vertex));
-  glEnableVertexArrayAttrib(vao, 0);
-  glVertexArrayAttribFormat(vao, 0, 2, GL_FLOAT, GL_FALSE, 0);
-  glVertexArrayAttribBinding(vao, 0, 0);
+  struct triangle_obj *triangle_obj =
+      &triangle_obj_list.objs[triangle_obj_list.count++];
+  glCreateBuffers(1, &triangle_obj->vbo);
+  glNamedBufferStorage(triangle_obj->vbo, sizeof(struct triangle_verts),
+                       &triangle_verts, GL_DYNAMIC_STORAGE_BIT);
 
-  return true;
+  glCreateVertexArrays(1, &triangle_obj->vao);
+  glVertexArrayVertexBuffer(triangle_obj->vao, 0, triangle_obj->vbo, 0,
+                            sizeof(struct vertex));
+  glEnableVertexArrayAttrib(triangle_obj->vao, 0);
+  glVertexArrayAttribFormat(triangle_obj->vao, 0, 2, GL_FLOAT, GL_FALSE, 0);
+  glVertexArrayAttribBinding(triangle_obj->vao, 0, 0);
+  return triangle_obj;
 }
 
-bool gf_draw_triangle() {
-  glUseProgram(shader_program);
-  glBindVertexArray(vao);
+bool gf_draw_triangle(struct shader *shader, struct triangle_obj *triangle) {
+  glUseProgram(shader->program);
+  glBindVertexArray(triangle->vao);
   glDrawArrays(GL_TRIANGLES, 0, 3);
   return true;
 }
