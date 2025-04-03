@@ -26,8 +26,10 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
         wl_registry_bind(registry, id, &xdg_wm_base_interface, 5);
   } else if (strcmp(interface, wp_cursor_shape_manager_v1_interface.name) ==
              0) {
-    window->wp_cursor_shape_manager = wl_registry_bind(
+    window->cursor_shape_manager = wl_registry_bind(
         registry, id, &wp_cursor_shape_manager_v1_interface, 1);
+  } else if (strcmp(interface, wl_seat_interface.name) == 0) {
+    window->wl_seat = wl_registry_bind(registry, id, &wl_seat_interface, 9);
   }
 }
 static void global_registry_remover(void *data, struct wl_registry *registry,
@@ -147,5 +149,10 @@ bool init_gf_window(struct gf_window *window) {
   /* create wl window */
   window->wl_egl_window = wl_egl_window_create(window->surface, 480, 360);
   assert(window->wl_egl_window != NULL);
+
+  window->wl_pointer          = wl_seat_get_pointer(window->wl_seat);
+  window->cursor_shape_device = wp_cursor_shape_manager_v1_get_pointer(
+      window->cursor_shape_manager, window->wl_pointer);
+
   return window;
 }
