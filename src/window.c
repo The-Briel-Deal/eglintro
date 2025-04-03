@@ -6,9 +6,9 @@
 #include <wayland-egl-core.h>
 
 #include "cursor-shape.h"
-#include "log.h"
 #include "xdg-shell.h"
 
+#include "log.h"
 #include "window.h"
 
 

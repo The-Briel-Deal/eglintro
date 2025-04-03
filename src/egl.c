@@ -3,7 +3,6 @@
 #include <GL/gl.h>
 #include <assert.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <wayland-client-core.h>
 #include <wayland-egl-core.h>
 
@@ -67,9 +66,7 @@ void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id,
   }
   // If this isn't set by the above switch, I probably missed a case.
   assert(gf_log_severity != -1);
-  gf_log(
-      gf_log_severity, "(GL) %s",
-      message);
+  gf_log(gf_log_severity, "(GL) %s", message);
 }
 
 bool init_egl(struct gf_egl_state *gf_egl_state, struct wl_display *wl_display,
