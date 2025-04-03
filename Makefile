@@ -3,6 +3,10 @@ HEADERS := $(wildcard include/*.h) build/protocols/include/xdg-shell.h build/pro
 SOURCES := $(wildcard src/*.c)
 OBJECTS := $(addprefix build/, $(notdir $(SOURCES:.c=.o)))
 
+ifdef LOG_LEVEL
+	CFLAGS += -DLOG_LEVEL=$(LOG_LEVEL)
+endif
+
 build/:
 	mkdir -p build
 	mkdir -p build/protocols

@@ -7,6 +7,7 @@
 #include <wayland-egl-core.h>
 
 #include "cursor-shape.h"
+#include "log.h"
 #include "xdg-shell.h"
 
 #include "window.h"
@@ -114,32 +115,32 @@ static const struct xdg_toplevel_listener toplevel_listener = {
 
 static void wl_pointer_leave(void *data, struct wl_pointer *wl_pointer,
                              uint32_t serial, struct wl_surface *surface) {
-  printf("\n\nwl_pointer.leave() called\n\n");
+  gf_log(INFO_LOG, "wl_pointer.leave() called");
 }
 static void wl_pointer_enter(void *data, struct wl_pointer *wl_pointer,
                              uint32_t serial, struct wl_surface *surface,
                              wl_fixed_t surface_x, wl_fixed_t surface_y) {
+  gf_log(INFO_LOG, "wl_pointer.enter() called");
   struct gf_window *window = data;
-  printf("\n\nwl_pointer.enter() called\n\n");
 
   wp_cursor_shape_device_v1_set_shape(window->cursor_shape_device, serial,
                                       WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_HELP);
 }
 
 static void wl_pointer_frame(void *data, struct wl_pointer *wl_pointer) {
-  printf("\n\nwl_pointer.frame() called\n\n");
+  gf_log(INFO_LOG, "wl_pointer.frame() called");
 }
 
 static void wl_pointer_motion(void *data, struct wl_pointer *wl_pointer,
                               uint32_t time, wl_fixed_t surface_x,
                               wl_fixed_t surface_y) {
-  printf("\n\nwl_pointer.motion() called\n\n");
+  gf_log(INFO_LOG, "wl_pointer.motion() called");
 }
 
 static void wl_pointer_button(void *data, struct wl_pointer *wl_pointer,
                               uint32_t serial, uint32_t time, uint32_t button,
                               uint32_t state) {
-  printf("\n\nwl_pointer.button() called\n\n");
+  gf_log(INFO_LOG, "\n\nwl_pointer.button() called\n\n");
 }
 
 // TODO: Add axis (scrolling) events.
