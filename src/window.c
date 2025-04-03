@@ -119,7 +119,11 @@ static void wl_pointer_leave(void *data, struct wl_pointer *wl_pointer,
 static void wl_pointer_enter(void *data, struct wl_pointer *wl_pointer,
                              uint32_t serial, struct wl_surface *surface,
                              wl_fixed_t surface_x, wl_fixed_t surface_y) {
+  struct gf_window *window = data;
   printf("\n\nwl_pointer.enter() called\n\n");
+
+  wp_cursor_shape_device_v1_set_shape(window->cursor_shape_device, serial,
+                                      WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_HELP);
 }
 
 static void wl_pointer_frame(void *data, struct wl_pointer *wl_pointer) {
@@ -196,7 +200,7 @@ bool init_gf_window(struct gf_window *window) {
   window->cursor_shape_device = wp_cursor_shape_manager_v1_get_pointer(
       window->cursor_shape_manager, window->wl_pointer);
 
-  wl_pointer_add_listener(window->wl_pointer, &pointer_listener, NULL);
+  wl_pointer_add_listener(window->wl_pointer, &pointer_listener, window);
 
   return window;
 }
