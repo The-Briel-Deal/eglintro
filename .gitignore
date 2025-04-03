@@ -1,4 +1,6 @@
 eglintro
+.gdbinit
 compile_commands.json
 .cache/
 build/
+
