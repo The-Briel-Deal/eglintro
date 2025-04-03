@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
@@ -15,6 +14,7 @@
 #include "draw.h"
 #include "egl.h"
 #include "window.h"
+#include "log.h"
 
 
 int main() {
@@ -23,7 +23,7 @@ int main() {
   struct gf_egl_state egl_state;
   init_egl(&egl_state, window.display, window.wl_egl_window);
 
-  printf("\n\nVersion %s\n\n", glGetString(GL_VERSION));
+  gf_log(INFO_LOG, "Version %s", glGetString(GL_VERSION));
 
   gf_compile_shaders();
   gf_create_triangle();
@@ -34,7 +34,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
 
-		gf_draw_triangle();
+    gf_draw_triangle();
 
     eglSwapBuffers(egl_state.display, egl_state.surface);
   }

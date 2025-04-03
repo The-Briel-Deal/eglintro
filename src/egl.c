@@ -8,6 +8,7 @@
 #include <wayland-egl-core.h>
 
 #include "egl.h"
+#include "log.h"
 
 static const EGLint config_attribs[] = {
     EGL_SURFACE_TYPE,
@@ -96,7 +97,7 @@ bool init_egl(struct gf_egl_state *gf_egl_state, struct wl_display *wl_display,
   EGLint minor;
   success = eglInitialize(gf_egl_state->display, &major, &minor);
   assert(success);
-  printf("EGL Version - v%i.%i\n", major, minor);
+  gf_log(INFO_LOG, "EGL Version - v%i.%i", major, minor);
 
   EGLBoolean ok = eglBindAPI(EGL_OPENGL_API);
   assert(ok);
