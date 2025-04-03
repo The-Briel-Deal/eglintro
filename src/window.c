@@ -6,6 +6,7 @@
 #include <wayland-client-protocol.h>
 #include <wayland-egl-core.h>
 
+#include "cursor-shape.h"
 #include "xdg-shell.h"
 
 #include "window.h"
@@ -23,7 +24,12 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
   } else if (strcmp(interface, xdg_wm_base_interface.name) == 0) {
     window->xdg_wm_base =
         wl_registry_bind(registry, id, &xdg_wm_base_interface, 5);
-  } // else if (strcmp(interface) == 0)
+  } else if (strcmp(interface, wp_cursor_shape_manager_v1_interface.name) ==
+             0) {
+    window->wp_cursor_shape_manager = wl_registry_bind(
+        registry, id, &wp_cursor_shape_manager_v1_interface, 1);
+		printf("\n\n\nWP_CURSOR_MAN\n\n\n");
+  }
 }
 static void global_registry_remover(void *data, struct wl_registry *registry,
                                     uint32_t id) {
