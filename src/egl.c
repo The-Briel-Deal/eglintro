@@ -58,10 +58,18 @@ static const EGLint context_attribs[] = {
 void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id,
                                 GLenum severity, GLsizei length,
                                 const GLchar *message, const void *userParam) {
-  fprintf(stderr,
-          "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-          (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity,
-          message);
+  enum log_severity gf_log_severity = -1;
+  switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH        : gf_log_severity = ERROR_LOG; break;
+    case GL_DEBUG_SEVERITY_MEDIUM      : gf_log_severity = DEBUG_LOG; break;
+    case GL_DEBUG_SEVERITY_LOW         :
+    case GL_DEBUG_SEVERITY_NOTIFICATION: gf_log_severity = INFO_LOG; break;
+  }
+  // If this isn't set by the above switch, I probably missed a case.
+  assert(gf_log_severity != -1);
+  gf_log(
+      gf_log_severity, "(GL) %s",
+      message);
 }
 
 bool init_egl(struct gf_egl_state *gf_egl_state, struct wl_display *wl_display,

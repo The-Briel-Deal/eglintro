@@ -7,13 +7,13 @@
 #define LOG_LEVEL 2
 #endif
 
-enum log {
+enum log_severity {
   INFO_LOG  = 0,
   DEBUG_LOG = 1,
   ERROR_LOG = 2,
 };
 
-static inline void gf_log(enum log severity, char *fmt_msg, ...) {
+static inline void gf_log(enum log_severity severity, char *fmt_msg, ...) {
   va_list args;
   va_start(args, fmt_msg);
   if (severity >= LOG_LEVEL) {
