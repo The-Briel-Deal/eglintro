@@ -86,25 +86,30 @@ static void xdg_toplevel_configure(void *data,
 static void xdg_toplevel_wm_capabilities(void *data,
                                          struct xdg_toplevel *xdg_toplevel,
                                          struct wl_array *capabilities) {
-  printf("xdg-toplevel wm_capabilities:\n");
-
   int *capability;
   wl_array_for_each(capability, capabilities) {
-    printf("    Capability - '");
-
-#define CASE_STR(value)                                                        \
-  case value: printf(#value); break;
-
     switch (*capability) {
-      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU)
-      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE)
-      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN)
-      CASE_STR(XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE)
+      case XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU:
+        gf_log(INFO_LOG,
+               "xdg_toplevel wm_capability: "
+               "XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU");
+        break;
+      case XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE:
+        gf_log(INFO_LOG,
+               "xdg_toplevel wm_capability: "
+               "XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE");
+        break;
+      case XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN:
+        gf_log(INFO_LOG,
+               "xdg_toplevel wm_capability: "
+               "XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN");
+        break;
+      case XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE:
+        gf_log(INFO_LOG,
+               "xdg_toplevel wm_capability: "
+               "XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE");
+        break;
     }
-
-#undef CASE_STR
-
-    printf("'.\n");
   }
 }
 static const struct xdg_toplevel_listener toplevel_listener = {
