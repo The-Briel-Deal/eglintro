@@ -28,7 +28,6 @@ static void global_registry_handler(void *data, struct wl_registry *registry,
              0) {
     window->wp_cursor_shape_manager = wl_registry_bind(
         registry, id, &wp_cursor_shape_manager_v1_interface, 1);
-    printf("\n\n\nWP_CURSOR_MAN\n\n\n");
   }
 }
 static void global_registry_remover(void *data, struct wl_registry *registry,
