@@ -5,7 +5,9 @@
 #include <wayland-client-protocol.h>
 #include <wayland-egl-core.h>
 
+#include "common.h"
 #include "cursor-shape.h"
+#include "draw.h"
 #include "xdg-shell.h"
 
 #include "log.h"
@@ -63,7 +65,7 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 
 
 /* xdg_toplevel Listener */
-int32_t old_w, old_h;
+int32_t old_w = GF_DEFAULT_WINDOW_WIDTH, old_h = GF_DEFAULT_WINDOW_HEIGHT;
 static void xdg_toplevel_configure(void *data,
                                    struct xdg_toplevel *xdg_toplevel, int32_t w,
                                    int32_t h, struct wl_array *states) {
@@ -80,6 +82,8 @@ static void xdg_toplevel_configure(void *data,
     glViewport(0, 0, w, h);
     wl_egl_window_resize(window->wl_egl_window, w, h, 0, 0);
     wl_surface_commit(window->surface);
+    gf_draw_update_window_size(w, h);
+		gf_commit_render_state();
   }
 }
 static void xdg_toplevel_wm_capabilities(void *data,
@@ -197,7 +201,8 @@ bool init_gf_window(struct gf_window *window) {
   wl_surface_commit(window->surface);
 
   /* create wl window */
-  window->wl_egl_window = wl_egl_window_create(window->surface, 480, 360);
+  window->wl_egl_window = wl_egl_window_create(
+      window->surface, GF_DEFAULT_WINDOW_WIDTH, GF_DEFAULT_WINDOW_HEIGHT);
   assert(window->wl_egl_window != NULL);
 
   /* get pointer */

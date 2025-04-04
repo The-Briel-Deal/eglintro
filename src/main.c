@@ -21,12 +21,13 @@
 const char *vert_shader_src =
     "#version 450 core\n"
     "layout (location = 0) in vec2 aPos;\n"
+		"layout (location = 0) uniform mat4 projection_mat;"
 		"\n"
     "out vec4 vertexColor;\n"
     "\n"
     "void main()\n"
     "{\n"
-    "    gl_Position = vec4(aPos, 0.0, 1.0);\n"
+    "    gl_Position =  projection_mat * vec4(aPos, 0.0, 1.0);\n"
     "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
     "}\n";
 
@@ -41,10 +42,10 @@ const char *frag_shader_src =
     "}\n";
 
 struct box_verts square_verts = {
-    {.x = 0.5,  .y = 0.5 },
-    {.x = -0.5, .y = 0.5 },
-    {.x = 0.5,  .y = -0.5},
-    {.x = -0.5, .y = -0.5},
+    {.x = 800,  .y = 800 },
+    {.x = 100, .y = 800 },
+    {.x = 800,  .y = 100},
+    {.x = 100, .y = 100},
 };
 
 int main() {

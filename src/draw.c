@@ -2,8 +2,11 @@
 #include <GL/glcorearb.h>
 #include <GL/glext.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <wayland-util.h>
 
+#include "cglm/cam.h"
+#include "common.h"
 #include "draw.h"
 #include "log.h"
 
@@ -12,6 +15,22 @@
 #define SHADER_PROGRAM_LIST_MAX 128
 
 static const GLuint BOX_INDEX_ORDER[] = {0, 1, 3, 0, 2, 3};
+
+struct render_state {
+  struct viewport_dimensions {
+    int height;
+    int width;
+    bool dirty;
+  } viewport;
+};
+
+struct render_state render_state = {
+    .viewport = {.height = GF_DEFAULT_WINDOW_HEIGHT,
+                 .width  = GF_DEFAULT_WINDOW_WIDTH,
+                 // dirty being true, means that we haven't recomputed and
+                 // uploaded the perspective matrix.
+                 .dirty = true},
+};
 
 struct shader {
   GLuint vert;
@@ -64,6 +83,33 @@ static struct box_obj_list box_obj_list = {
     .count    = 0,
     .capacity = BOX_OBJ_LIST_MAX,
 };
+
+bool gf_draw_update_window_size(int32_t width, int32_t height) {
+  if (height == render_state.viewport.height &&
+      width == render_state.viewport.width) {
+    return false;
+  }
+  render_state.viewport = (struct viewport_dimensions){
+      .width = width, .height = height, .dirty = true};
+  return true;
+}
+
+void gf_commit_render_state() {
+  gf_log(INFO_LOG, "Commiting render state.");
+  if (render_state.viewport.dirty == true) {
+    render_state.viewport.dirty = false;
+    mat4 perspective_matrix;
+    glm_ortho(0.0f, render_state.viewport.width, 0,
+              render_state.viewport.height, -1.0, 1.0, perspective_matrix);
+    for (int i = 0; i < shader_program_list.count; i++) {
+      struct shader *shader = &shader_program_list.shaders[i];
+      gf_log(INFO_LOG, "Commiting render state to shader %i.", i);
+      glProgramUniformMatrix4fv(shader->program,
+                                GF_UNIFORM_PROJECTION_MAT_LOCATION, 1, false,
+                                (GLfloat *)perspective_matrix);
+    }
+  }
+}
 
 struct shader *gf_compile_shaders(const char *vert_shader_src,
                                   const char *frag_shader_src) {

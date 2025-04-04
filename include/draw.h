@@ -3,6 +3,7 @@
 
 
 #include <stdbool.h>
+#include <stdint.h>
 
 struct vertex {
   float x;
@@ -25,6 +26,9 @@ struct box_verts {
 struct box_obj;
 
 struct shader;
+
+bool gf_draw_update_window_size(int32_t height, int32_t width);
+void gf_commit_render_state();
 
 struct box_obj *gf_create_box(const struct box_verts *box_verts);
 bool gf_set_box_shader(struct box_obj *box, struct shader *shader);
