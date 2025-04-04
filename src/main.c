@@ -21,7 +21,7 @@
 const char *vert_shader_src =
     "#version 450 core\n"
     "layout (location = 0) in vec2 aPos;\n"
-		"layout\n"
+		"\n"
     "out vec4 vertexColor;\n"
     "\n"
     "void main()\n"
