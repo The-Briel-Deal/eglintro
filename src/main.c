@@ -37,9 +37,10 @@ const char *frag_shader_src =
     "    FragColor = vertexColor;\n"
     "}\n";
 
-struct triangle_verts triangle_verts = {
+struct box_verts square_verts = {
+    {.x = 0.5,  .y = 0.5 },
+    {.x = -0.5, .y = 0.5 },
     {.x = 0.5,  .y = -0.5},
-    {.x = 0.0,  .y = 0.5 },
     {.x = -0.5, .y = -0.5},
 };
 
@@ -51,9 +52,9 @@ int main() {
 
   gf_log(INFO_LOG, "Version %s", glGetString(GL_VERSION));
 
-  struct shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
-  struct triangle_obj *triangle = gf_create_triangle(&triangle_verts);
-  gf_set_triangle_shader(triangle, shader);
+  struct shader *shader  = gf_compile_shaders(vert_shader_src, frag_shader_src);
+  struct box_obj *square = gf_create_box(&square_verts);
+  gf_set_box_shader(square, shader);
   while (true) {
     wl_display_dispatch_pending(window.display);
 
@@ -61,7 +62,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
 
-    gf_draw_triangle(triangle);
+    gf_draw_box(square);
 
     eglSwapBuffers(egl_state.display, egl_state.surface);
   }

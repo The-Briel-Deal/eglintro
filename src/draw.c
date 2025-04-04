@@ -175,6 +175,6 @@ bool gf_set_box_shader(struct box_obj *box, struct shader *shader) {
 bool gf_draw_box(struct box_obj *box) {
   glUseProgram(box->shader->program);
   glBindVertexArray(box->vao);
-  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   return true;
 }
