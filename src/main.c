@@ -11,17 +11,17 @@
 #include <wayland-egl.h>
 #include <wayland-util.h>
 
+#include "common.h"
 #include "draw.h"
 #include "egl.h"
 #include "log.h"
 #include "window.h"
 
-#include "cglm/cglm.h"
 
 const char *vert_shader_src =
     "#version 450 core\n"
-    "layout (location = 0) in vec2 aPos;\n"
-		"layout (location = 0) uniform mat4 projection_mat;"
+    "layout (location = " TO_STR(GF_ATTRIB_VERT_LOCATION) ") in vec2 aPos;\n"
+		"layout (location = " TO_STR(GF_UNIFORM_PROJECTION_MAT_LOCATION) ") uniform mat4 projection_mat;"
 		"\n"
     "out vec4 vertexColor;\n"
     "\n"
@@ -42,9 +42,9 @@ const char *frag_shader_src =
     "}\n";
 
 struct box_verts square_verts = {
-    {.x = 800,  .y = 800 },
-    {.x = 100, .y = 800 },
-    {.x = 800,  .y = 100},
+    {.x = 800, .y = 800},
+    {.x = 100, .y = 800},
+    {.x = 800, .y = 100},
     {.x = 100, .y = 100},
 };
 
