@@ -111,15 +111,23 @@ void gf_commit_render_state() {
   gf_log(INFO_LOG, "Commiting render state.");
   if (render_state.viewport.dirty == true) {
     render_state.viewport.dirty = false;
+
     mat4 perspective_matrix;
     gf_ortho(0.0f, render_state.viewport.width, 0, render_state.viewport.height,
              -1.0, 1.0, perspective_matrix);
+
+    mat2 transformation_matrix;
+    gf_scale_mat2(render_state.transform.scale_x,
+                  render_state.transform.scale_y, transformation_matrix);
     for (int i = 0; i < shader_program_list.count; i++) {
       struct shader *shader = &shader_program_list.shaders[i];
       gf_log(INFO_LOG, "Commiting render state to shader %i.", i);
       glProgramUniformMatrix4fv(shader->program,
                                 GF_UNIFORM_PROJECTION_MAT_LOCATION, 1, false,
                                 (GLfloat *)perspective_matrix);
+      glProgramUniformMatrix2fv(shader->program,
+                                GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
+                                (GLfloat *)transformation_matrix);
     }
   }
 }
