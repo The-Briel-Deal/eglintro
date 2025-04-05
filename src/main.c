@@ -12,7 +12,7 @@
 #include <wayland-util.h>
 
 #include "common.h"
-#include "draw.h"
+#include "render.h"
 #include "egl.h"
 #include "log.h"
 #include "window.h"

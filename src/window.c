@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include "cursor-shape.h"
-#include "draw.h"
+#include "render.h"
 #include "xdg-shell.h"
 
 #include "log.h"
