@@ -83,7 +83,7 @@ static void xdg_toplevel_configure(void *data,
     wl_egl_window_resize(window->wl_egl_window, w, h, 0, 0);
     wl_surface_commit(window->surface);
     gf_draw_update_window_size(w, h);
-		gf_commit_render_state();
+    gf_commit_render_state();
   }
 }
 static void xdg_toplevel_wm_capabilities(void *data,

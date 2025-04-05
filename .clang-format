@@ -10,8 +10,6 @@ AlignConsecutiveShortCaseStatements:
   AcrossEmptyLines: true
   AcrossComments: true
   AlignCaseColons: true
-AlignArrayOfStructures: Left
-AlignAfterOpenBracket: Align
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: None
 IndentCaseLabels: true

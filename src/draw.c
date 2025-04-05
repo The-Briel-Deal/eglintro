@@ -33,15 +33,16 @@ struct render_state {
 struct render_state render_state = {
     .viewport =
         {
-                   .height = GF_DEFAULT_WINDOW_HEIGHT,
-                   .width  = GF_DEFAULT_WINDOW_WIDTH,
-                   .dirty  = true,
-                   },
-    .transform = {
-                   .scale_x = 3,
-                   .scale_y = 3,
-                   .dirty   = true,
-                   }
+            .height = GF_DEFAULT_WINDOW_HEIGHT,
+            .width  = GF_DEFAULT_WINDOW_WIDTH,
+            .dirty  = true,
+        },
+    .transform =
+        {
+            .scale_x = 3,
+            .scale_y = 3,
+            .dirty   = true,
+        },
 };
 
 struct shader {
