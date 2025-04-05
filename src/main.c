@@ -42,10 +42,10 @@ const char *frag_shader_src =
     "}\n";
 
 struct box_verts square_verts = {
-    {.x = 800, .y = 800},
-    {.x = 100, .y = 800},
-    {.x = 800, .y = 100},
     {.x = 100, .y = 100},
+    {.x = 0, .y = 100},
+    {.x = 100, .y = 0},
+    {.x = 0, .y = 0},
 };
 
 int main() {
