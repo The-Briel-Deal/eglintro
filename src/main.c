@@ -63,7 +63,7 @@ int main() {
   while (true) {
     wl_display_dispatch_pending(window.display);
 
-		struct tf_scale scale = gf_obj_get_scale(square);
+    struct tf_scale scale = gf_obj_get_scale(square);
 
     gf_obj_set_scale(square, scale.x + 0.001f, scale.y + 0.001f);
 
