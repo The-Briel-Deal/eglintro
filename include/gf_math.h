@@ -9,12 +9,19 @@
 
 #include <string.h>
 
+// Array Based Vector and Matrix.
 typedef float vec2[2];
 typedef float vec3[3];
 typedef float vec4[4];
 typedef vec2 mat2[2];
 typedef vec3 mat3[3];
 typedef vec4 mat4[4];
+
+// Struct Based Vector and Matrix.
+typedef struct {
+  float x;
+  float y;
+} vec2s;
 
 static inline void gf_mat4_zero(mat4 dest) {
   memset(dest, 0x0, sizeof(mat4));

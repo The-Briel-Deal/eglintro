@@ -61,7 +61,7 @@ struct obj {
   GLuint ebo;
   struct obj_state {
     struct transform {
-      struct tf_scale scale;
+      tf_scale scale;
       bool dirty;
     } transform;
   } state;
@@ -174,7 +174,7 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
                        GL_DYNAMIC_STORAGE_BIT);
 
   glCreateVertexArrays(1, &obj->vao);
-  glVertexArrayVertexBuffer(obj->vao, 0, obj->vbo, 0, sizeof(struct vertex));
+  glVertexArrayVertexBuffer(obj->vao, 0, obj->vbo, 0, sizeof(vertex));
   glVertexArrayElementBuffer(obj->vao, obj->ebo);
   glEnableVertexArrayAttrib(obj->vao, 0);
   glVertexArrayAttribFormat(obj->vao, 0, 2, GL_FLOAT, false, 0);
@@ -213,12 +213,12 @@ void gf_obj_sync_transform(struct obj *obj) {
                             (GLfloat *)transformation_matrix);
 }
 
-struct tf_scale gf_obj_get_scale(struct obj *obj) {
+tf_scale gf_obj_get_scale(struct obj *obj) {
   return obj->state.transform.scale;
 }
 
 void gf_obj_set_scale(struct obj *obj, const float x, const float y) {
-  obj->state.transform.scale = (struct tf_scale){x, y};
+  obj->state.transform.scale = (tf_scale){x, y};
   obj->state.transform.dirty = true;
 }
 
