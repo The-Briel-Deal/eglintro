@@ -9,12 +9,15 @@
 
 #include <string.h>
 
+typedef float vec2[2];
+typedef float vec3[3];
 typedef float vec4[4];
+typedef vec2 mat2[2];
+typedef vec3 mat3[3];
 typedef vec4 mat4[4];
 
 static inline void gf_mat4_zero(mat4 dest) {
   memset(dest, 0x0, sizeof(mat4));
-  dest = (mat4){0};
 }
 
 static inline void gf_ortho(float left, float right, float bottom, float top,
@@ -35,4 +38,16 @@ static inline void gf_ortho(float left, float right, float bottom, float top,
   dest[3][2] = (farZ + nearZ) * fn;
   dest[3][3] = 1.0f;
 }
+
+static inline void gf_mat2_zero(mat2 dest) {
+  memset(dest, 0x0, sizeof(mat2));
+}
+static inline void gf_scale_mat2(float x, float y, mat2 dest) {
+  gf_mat2_zero(dest);
+
+  dest[0][0] = x;
+  dest[1][1] = y;
+}
+
+
 #endif

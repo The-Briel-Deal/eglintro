@@ -23,14 +23,25 @@ struct render_state {
     int width;
     bool dirty;
   } viewport;
+  struct transform {
+    float scale_x;
+    float scale_y;
+    bool dirty;
+  } transform;
 };
 
 struct render_state render_state = {
-    .viewport = {.height = GF_DEFAULT_WINDOW_HEIGHT,
-                 .width  = GF_DEFAULT_WINDOW_WIDTH,
-                 // dirty being true, means that we haven't recomputed and
-                 // uploaded the perspective matrix.
-                 .dirty = true},
+    .viewport =
+        {
+                   .height = GF_DEFAULT_WINDOW_HEIGHT,
+                   .width  = GF_DEFAULT_WINDOW_WIDTH,
+                   .dirty  = true,
+                   },
+    .transform = {
+                   .scale_x = 3,
+                   .scale_y = 3,
+                   .dirty   = true,
+                   }
 };
 
 struct shader {
