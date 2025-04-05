@@ -64,7 +64,7 @@ int main() {
   while (true) {
     wl_display_dispatch_pending(window.display);
 
-		gf_obj_set_scale(square, scale_x+=0.001f, scale_y+=0.001f);
+    gf_obj_set_scale(square, scale_x += 0.001f, scale_y += 0.001f);
 
     gf_obj_commit_state(square);
 

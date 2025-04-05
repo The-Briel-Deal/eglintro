@@ -218,7 +218,7 @@ void gf_obj_sync_transform(struct obj *obj) {
 
 void gf_obj_set_scale(struct obj *obj, const float x, const float y) {
   obj->state.transform.scale = (struct tf_scale){x, y};
-	obj->state.transform.dirty = true;
+  obj->state.transform.dirty = true;
 }
 
 void gf_obj_commit_state(struct obj *obj) {
