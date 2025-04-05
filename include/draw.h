@@ -23,26 +23,16 @@ struct box_verts {
   struct vertex bottom_right;
   struct vertex bottom_left;
 };
-struct box_obj;
+struct obj;
 
 struct shader;
 
 bool gf_draw_update_window_size(int32_t height, int32_t width);
 void gf_commit_render_state(struct shader *shader);
 
-struct box_obj *gf_create_box(const struct box_verts *box_verts);
-bool gf_set_box_shader(struct box_obj *box, struct shader *shader);
-bool gf_draw_box(struct box_obj *box);
-
-
-//! Creates a opengl triangle object based off the triangle_verts passed.
-//! \param triangle_verts A pointer to the verticies the triangle will have.
-//! \return An opaque pointer to the resulting triangle object.
-struct triangle_obj *
-gf_create_triangle(const struct triangle_verts *triangle_verts);
-bool gf_set_triangle_shader(struct triangle_obj *triangle,
-                            struct shader *shader);
-bool gf_draw_triangle(struct triangle_obj *triangle);
+struct obj *gf_obj_create_box(const struct box_verts *box_verts);
+bool gf_obj_set_shader(struct obj *obj, struct shader *shader);
+bool gf_obj_draw(struct obj *obj);
 
 struct shader *gf_compile_shaders(const char *vert_shader_src,
                                   const char *frag_shader_src);

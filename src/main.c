@@ -57,9 +57,9 @@ int main() {
 
   gf_log(INFO_LOG, "Version %s", glGetString(GL_VERSION));
 
-  struct shader *shader  = gf_compile_shaders(vert_shader_src, frag_shader_src);
-  struct box_obj *square = gf_create_box(&square_verts);
-  gf_set_box_shader(square, shader);
+  struct shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
+  struct obj *square    = gf_obj_create_box(&square_verts);
+  gf_obj_set_shader(square, shader);
   while (true) {
     wl_display_dispatch_pending(window.display);
 
@@ -69,7 +69,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
 
-    gf_draw_box(square);
+    gf_obj_draw(square);
 
     eglSwapBuffers(egl_state.display, egl_state.surface);
   }
