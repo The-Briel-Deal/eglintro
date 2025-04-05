@@ -61,8 +61,10 @@ struct obj {
   GLuint ebo;
   struct obj_state {
     struct transform {
-      float scale_x;
-      float scale_y;
+      struct tf_scale {
+        float x;
+        float y;
+      } scale;
       bool dirty;
     } transform;
   } state;
@@ -184,8 +186,8 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
   obj->state = (struct obj_state){
       .transform =
           {
-              .scale_x = 3.0f,
-              .scale_y = 3.0f,
+              .scale.x = 3.0f,
+              .scale.y = 3.0f,
               .dirty   = true,
           },
   };
@@ -204,23 +206,27 @@ void gf_obj_sync_transform(struct obj *obj) {
   gf_log(INFO_LOG,
          "Syncing transformations (scale: { x: '%f', y: '%f'}) to shader "
          "program '%i'.",
-         obj->state.transform.scale_x, obj->state.transform.scale_y,
+         obj->state.transform.scale.x, obj->state.transform.scale.y,
          obj->shader->program);
   mat2 transformation_matrix;
-  gf_scale_mat2(obj->state.transform.scale_x, obj->state.transform.scale_y,
+  gf_scale_mat2(obj->state.transform.scale.x, obj->state.transform.scale.y,
                 transformation_matrix);
   glProgramUniformMatrix2fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
                             (GLfloat *)transformation_matrix);
 }
 
+void gf_obj_set_scale(struct obj *obj, const float x, const float y) {
+  obj->state.transform.scale = (struct tf_scale){x, y};
+	obj->state.transform.dirty = true;
+}
 
 void gf_obj_commit_state(struct obj *obj) {
   if (obj->state.transform.dirty == true) {
     obj->state.transform.dirty = false;
     gf_obj_sync_transform(obj);
   }
-	gf_shader_commit_state(obj->shader);
+  gf_shader_commit_state(obj->shader);
 }
 
 bool gf_obj_draw(struct obj *obj) {

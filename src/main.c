@@ -60,8 +60,11 @@ int main() {
   struct shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
   struct obj *square    = gf_obj_create_box(&square_verts);
   gf_obj_set_shader(square, shader);
+  float scale_x = 3.0f, scale_y = 3.0f;
   while (true) {
     wl_display_dispatch_pending(window.display);
+
+		gf_obj_set_scale(square, scale_x+=0.001f, scale_y+=0.001f);
 
     gf_obj_commit_state(square);
 
