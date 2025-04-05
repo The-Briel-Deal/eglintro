@@ -32,6 +32,7 @@ void gf_shader_commit_state(struct shader *shader);
 
 struct obj *gf_obj_create_box(const struct box_verts *box_verts);
 bool gf_obj_set_shader(struct obj *obj, struct shader *shader);
+void gf_obj_commit_state(struct obj *obj);
 bool gf_obj_draw(struct obj *obj);
 
 struct shader *gf_compile_shaders(const char *vert_shader_src,

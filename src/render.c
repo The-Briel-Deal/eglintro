@@ -40,11 +40,6 @@ struct shader {
   GLuint program;
   struct shader_state {
     struct viewport_dimensions last_committed_viewport;
-    struct transform {
-      float scale_x;
-      float scale_y;
-      bool dirty;
-    } transform;
   } state;
 };
 
@@ -59,10 +54,18 @@ static struct shader_program_list shader_program_list = {
     .capacity = SHADER_PROGRAM_LIST_MAX,
 };
 
+
 struct obj {
   GLuint vbo;
   GLuint vao;
   GLuint ebo;
+  struct obj_state {
+    struct transform {
+      float scale_x;
+      float scale_y;
+      bool dirty;
+    } transform;
+  } state;
   struct shader *shader;
 };
 
@@ -104,19 +107,6 @@ void gf_shader_sync_projection_matrix(struct shader *shader) {
                             1, false, (GLfloat *)perspective_matrix);
 }
 
-void gf_shader_sync_transform(struct shader *shader) {
-  gf_log(INFO_LOG,
-         "Syncing transformations (scale: { x: '%i', y: '%i'}) to shader "
-         "program '%i'.",
-         shader->state.transform.scale_x, shader->state.transform.scale_y,
-         shader->program);
-  mat2 transformation_matrix;
-  gf_scale_mat2(shader->state.transform.scale_x,
-                shader->state.transform.scale_y, transformation_matrix);
-  glProgramUniformMatrix2fv(shader->program, GF_UNIFORM_TRANSFORM_MAT_LOCATION,
-                            1, false, (GLfloat *)transformation_matrix);
-}
-
 void gf_shader_commit_state(struct shader *shader) {
   // Only sync if shader viewport out of sync with render state.
   struct viewport_dimensions *last_vp = &shader->state.last_committed_viewport,
@@ -125,10 +115,6 @@ void gf_shader_commit_state(struct shader *shader) {
     last_vp->height = curr_vp->height;
     last_vp->width  = curr_vp->width;
     gf_shader_sync_projection_matrix(shader);
-  }
-  if (shader->state.transform.dirty == true) {
-    shader->state.transform.dirty = false;
-    gf_shader_sync_transform(shader);
   }
 }
 
@@ -164,12 +150,6 @@ struct shader *gf_compile_shaders(const char *vert_shader_src,
               .height = 0,
               .width  = 0,
           },
-      .transform =
-          {
-              .scale_x = 3,
-              .scale_y = 3,
-              .dirty   = true,
-          },
   };
   return shader;
 }
@@ -200,6 +180,15 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
   glEnableVertexArrayAttrib(obj->vao, 0);
   glVertexArrayAttribFormat(obj->vao, 0, 2, GL_FLOAT, false, 0);
   glVertexArrayAttribBinding(obj->vao, 0, 0);
+
+  obj->state = (struct obj_state){
+      .transform =
+          {
+              .scale_x = 3.0f,
+              .scale_y = 3.0f,
+              .dirty   = true,
+          },
+  };
   return obj;
 }
 
@@ -209,6 +198,29 @@ bool gf_obj_set_shader(struct obj *obj, struct shader *shader) {
   }
   obj->shader = shader;
   return true;
+}
+
+void gf_obj_sync_transform(struct obj *obj) {
+  gf_log(INFO_LOG,
+         "Syncing transformations (scale: { x: '%f', y: '%f'}) to shader "
+         "program '%i'.",
+         obj->state.transform.scale_x, obj->state.transform.scale_y,
+         obj->shader->program);
+  mat2 transformation_matrix;
+  gf_scale_mat2(obj->state.transform.scale_x, obj->state.transform.scale_y,
+                transformation_matrix);
+  glProgramUniformMatrix2fv(obj->shader->program,
+                            GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
+                            (GLfloat *)transformation_matrix);
+}
+
+
+void gf_obj_commit_state(struct obj *obj) {
+  if (obj->state.transform.dirty == true) {
+    obj->state.transform.dirty = false;
+    gf_obj_sync_transform(obj);
+  }
+	gf_shader_commit_state(obj->shader);
 }
 
 bool gf_obj_draw(struct obj *obj) {
