@@ -187,8 +187,8 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
               .scale.x = 3.0f,
               .scale.y = 3.0f,
 
-              .pos.x = 100.0f,
-              .pos.y = 100.0f,
+              .pos.x = 1.0f,
+              .pos.y = 1.0f,
 
               .dirty = true,
           },
@@ -210,10 +210,13 @@ void gf_obj_sync_transform(struct obj *obj) {
          "program '%i'.",
          obj->state.transform.scale.x, obj->state.transform.scale.y,
          obj->shader->program);
-  mat2 transformation_matrix;
-  gf_scale_mat2(obj->state.transform.scale.x, obj->state.transform.scale.y,
-                transformation_matrix);
-  glProgramUniformMatrix2fv(obj->shader->program,
+
+  mat3 transformation_matrix;
+  gf_mat3_identity(transformation_matrix);
+  gf_mat3_scale(obj->state.transform.scale, transformation_matrix);
+  gf_mat3_translate(obj->state.transform.pos, transformation_matrix);
+
+  glProgramUniformMatrix3fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
                             (GLfloat *)transformation_matrix);
 }

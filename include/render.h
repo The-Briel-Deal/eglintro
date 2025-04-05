@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef vec2s vertex;
-
 struct triangle_verts {
   vertex v1;
   vertex v2;
@@ -24,8 +22,6 @@ struct obj;
 
 struct shader;
 
-typedef vec2s tf_scale;
-typedef vec2s tf_pos;
 
 bool gf_draw_update_window_size(int32_t height, int32_t width);
 void gf_shader_commit_state(struct shader *shader);

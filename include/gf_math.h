@@ -23,6 +23,11 @@ typedef struct {
   float y;
 } vec2s;
 
+typedef vec2s vertex;
+
+typedef vec2s tf_scale;
+typedef vec2s tf_pos;
+
 static inline void gf_mat4_zero(mat4 dest) {
   memset(dest, 0x0, sizeof(mat4));
 }
@@ -49,12 +54,45 @@ static inline void gf_ortho(float left, float right, float bottom, float top,
 static inline void gf_mat2_zero(mat2 dest) {
   memset(dest, 0x0, sizeof(mat2));
 }
-static inline void gf_scale_mat2(float x, float y, mat2 dest) {
-  gf_mat2_zero(dest);
 
-  dest[0][0] = x;
-  dest[1][1] = y;
+static const mat3 MAT3_IDENTITY = {
+    {1, 0, 0},
+    {0, 1, 0},
+    {0, 0, 1},
+};
+
+static inline void gf_mat3_identity(mat3 dest) {
+  memcpy(dest, MAT3_IDENTITY, sizeof(mat3));
 }
 
+static inline void gf_mat3_mul(mat3 m1, mat3 m2, mat3 dest) {
+  float a00 = m1[0][0], a01 = m1[0][1], a02 = m1[0][2];
+  float a10 = m1[1][0], a11 = m1[1][1], a12 = m1[1][2];
+  float a20 = m1[2][0], a21 = m1[2][1], a22 = m1[2][2];
+
+  float b00 = m2[0][0], b01 = m2[0][1], b02 = m2[0][2];
+  float b10 = m2[1][0], b11 = m2[1][1], b12 = m2[1][2];
+  float b20 = m2[2][0], b21 = m2[2][1], b22 = m2[2][2];
+
+  dest[0][0] = a00 * b00 + a10 * b01 + a20 * b02;
+  dest[0][1] = a01 * b00 + a11 * b01 + a21 * b02;
+  dest[0][2] = a02 * b00 + a12 * b01 + a22 * b02;
+  dest[1][0] = a00 * b10 + a10 * b11 + a20 * b12;
+  dest[1][1] = a01 * b10 + a11 * b11 + a21 * b12;
+  dest[1][2] = a02 * b10 + a12 * b11 + a22 * b12;
+  dest[2][0] = a00 * b20 + a10 * b21 + a20 * b22;
+  dest[2][1] = a01 * b20 + a11 * b21 + a21 * b22;
+  dest[2][2] = a02 * b20 + a12 * b21 + a22 * b22;
+}
+
+static inline void gf_mat3_scale(tf_scale scale, mat3 dest) {
+  dest[0][0] = scale.x;
+  dest[1][1] = scale.y;
+}
+
+static inline void gf_mat3_translate(tf_pos pos, mat3 dest) {
+  dest[0][2] = pos.x;
+  dest[1][2] = pos.y;
+}
 
 #endif
