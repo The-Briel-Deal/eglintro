@@ -63,6 +63,8 @@ int main() {
   while (true) {
     wl_display_dispatch_pending(window.display);
 
+    gf_commit_render_state(shader);
+
     glClearColor(1.0, 1.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();

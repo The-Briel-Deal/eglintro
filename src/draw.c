@@ -1,9 +1,9 @@
 #include <GL/gl.h>
 #include <GL/glcorearb.h>
 #include <GL/glext.h>
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 #include <wayland-util.h>
 
 #include "common.h"
@@ -17,17 +17,14 @@
 
 static const GLuint BOX_INDEX_ORDER[] = {0, 1, 3, 0, 2, 3};
 
+struct viewport_dimensions {
+  int height;
+  int width;
+};
+
+// Shared Global State shared by shaders.
 struct render_state {
-  struct viewport_dimensions {
-    int height;
-    int width;
-    bool dirty;
-  } viewport;
-  struct transform {
-    float scale_x;
-    float scale_y;
-    bool dirty;
-  } transform;
+  struct viewport_dimensions viewport;
 };
 
 struct render_state render_state = {
@@ -35,13 +32,6 @@ struct render_state render_state = {
         {
             .height = GF_DEFAULT_WINDOW_HEIGHT,
             .width  = GF_DEFAULT_WINDOW_WIDTH,
-            .dirty  = true,
-        },
-    .transform =
-        {
-            .scale_x = 3,
-            .scale_y = 3,
-            .dirty   = true,
         },
 };
 
@@ -49,6 +39,14 @@ struct shader {
   GLuint vert;
   GLuint frag;
   GLuint program;
+  struct shader_state {
+    struct viewport_dimensions last_commited_viewport;
+    struct transform {
+      float scale_x;
+      float scale_y;
+      bool dirty;
+    } transform;
+  } state;
 };
 
 struct shader_program_list {
@@ -102,33 +100,54 @@ bool gf_draw_update_window_size(int32_t width, int32_t height) {
       width == render_state.viewport.width) {
     return false;
   }
-  render_state.viewport = (struct viewport_dimensions){
-      .width = width, .height = height, .dirty = true};
+  render_state.viewport =
+      (struct viewport_dimensions){.width = width, .height = height};
   return true;
 }
 
-void gf_commit_render_state() {
-  gf_log(INFO_LOG, "Commiting render state.");
-  if (render_state.viewport.dirty == true) {
-    render_state.viewport.dirty = false;
+void gf_shader_sync_projection_matrix(struct shader *shader) {
+  int h = shader->state.last_commited_viewport.height;
+  int w = shader->state.last_commited_viewport.width;
 
-    mat4 perspective_matrix;
-    gf_ortho(0.0f, render_state.viewport.width, 0, render_state.viewport.height,
-             -1.0, 1.0, perspective_matrix);
+  gf_log(INFO_LOG,
+         "Syncing projection matrix (h: %i, w: %i) to shader program '%i'.", h,
+         w, shader->program);
 
-    mat2 transformation_matrix;
-    gf_scale_mat2(render_state.transform.scale_x,
-                  render_state.transform.scale_y, transformation_matrix);
-    for (int i = 0; i < shader_program_list.count; i++) {
-      struct shader *shader = &shader_program_list.shaders[i];
-      gf_log(INFO_LOG, "Commiting render state to shader %i.", i);
-      glProgramUniformMatrix4fv(shader->program,
-                                GF_UNIFORM_PROJECTION_MAT_LOCATION, 1, false,
-                                (GLfloat *)perspective_matrix);
-      glProgramUniformMatrix2fv(shader->program,
-                                GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
-                                (GLfloat *)transformation_matrix);
-    }
+  assert(h > 0);
+  assert(w > 0);
+  mat4 perspective_matrix;
+  gf_ortho(0.0f, w, 0, h, -1.0, 1.0, perspective_matrix);
+
+  glProgramUniformMatrix4fv(shader->program, GF_UNIFORM_PROJECTION_MAT_LOCATION,
+                            1, false, (GLfloat *)perspective_matrix);
+}
+
+void gf_shader_sync_transform(struct shader *shader) {
+  gf_log(INFO_LOG,
+         "Syncing transformations (scale: { x: '%i', y: '%i'}) to shader "
+         "program '%i'.",
+         shader->state.transform.scale_x, shader->state.transform.scale_y,
+         shader->program);
+  mat2 transformation_matrix;
+  gf_scale_mat2(shader->state.transform.scale_x,
+                shader->state.transform.scale_y, transformation_matrix);
+  glProgramUniformMatrix2fv(shader->program, GF_UNIFORM_TRANSFORM_MAT_LOCATION,
+                            1, false, (GLfloat *)transformation_matrix);
+}
+
+void gf_commit_render_state(struct shader *shader) {
+  // Only sync if shader viewport out of sync with render state.
+  if (shader->state.last_commited_viewport.height !=
+          render_state.viewport.height ||
+      shader->state.last_commited_viewport.width !=
+          render_state.viewport.width) {
+    shader->state.last_commited_viewport.height = render_state.viewport.height;
+    shader->state.last_commited_viewport.width  = render_state.viewport.width;
+    gf_shader_sync_projection_matrix(shader);
+  }
+  if (shader->state.transform.dirty == true) {
+    shader->state.transform.dirty = false;
+    gf_shader_sync_transform(shader);
   }
 }
 
@@ -158,6 +177,19 @@ struct shader *gf_compile_shaders(const char *vert_shader_src,
   glAttachShader(shader->program, shader->frag);
   glLinkProgram(shader->program);
 
+  shader->state = (struct shader_state){
+      .last_commited_viewport =
+          {
+              .height = 0,
+              .width  = 0,
+          },
+      .transform =
+          {
+              .scale_x = 3,
+              .scale_y = 3,
+              .dirty   = true,
+          },
+  };
   return shader;
 }
 
