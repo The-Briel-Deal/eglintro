@@ -61,10 +61,7 @@ struct obj {
   GLuint ebo;
   struct obj_state {
     struct transform {
-      struct tf_scale {
-        float x;
-        float y;
-      } scale;
+      struct tf_scale scale;
       bool dirty;
     } transform;
   } state;
@@ -214,6 +211,10 @@ void gf_obj_sync_transform(struct obj *obj) {
   glProgramUniformMatrix2fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
                             (GLfloat *)transformation_matrix);
+}
+
+struct tf_scale gf_obj_get_scale(struct obj *obj) {
+  return obj->state.transform.scale;
 }
 
 void gf_obj_set_scale(struct obj *obj, const float x, const float y) {
