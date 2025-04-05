@@ -7,9 +7,9 @@
 #include <wayland-util.h>
 
 #include "common.h"
-#include "render.h"
 #include "gf_math.h"
 #include "log.h"
+#include "render.h"
 
 #define OBJ_LIST_MAX            128
 #define SHADER_PROGRAM_LIST_MAX 128

@@ -12,9 +12,9 @@
 #include <wayland-util.h>
 
 #include "common.h"
-#include "render.h"
 #include "egl.h"
 #include "log.h"
+#include "render.h"
 #include "window.h"
 
 
