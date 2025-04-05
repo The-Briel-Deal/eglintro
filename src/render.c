@@ -233,7 +233,7 @@ void gf_obj_set_pos(struct obj *obj, tf_pos pos) {
 }
 
 tf_pos gf_obj_get_pos(struct obj *obj) {
-	return obj->state.transform.pos;
+  return obj->state.transform.pos;
 }
 
 void gf_obj_commit_state(struct obj *obj) {
