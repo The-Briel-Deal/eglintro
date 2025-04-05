@@ -6,6 +6,9 @@ OBJECTS := $(addprefix build/, $(notdir $(SOURCES:.c=.o)))
 ifdef LOG_LEVEL
 	CFLAGS += -DLOG_LEVEL=$(LOG_LEVEL)
 endif
+ifeq (${DEBUG_SYM}, 1)
+	CFLAGS += -g
+endif
 
 build/:
 	mkdir -p build

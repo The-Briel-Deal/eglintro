@@ -211,10 +211,16 @@ void gf_obj_sync_transform(struct obj *obj) {
          obj->state.transform.scale.x, obj->state.transform.scale.y,
          obj->shader->program);
 
+  mat3 scaling_matrix;
+  gf_mat3_identity(scaling_matrix);
+  gf_mat3_scale(obj->state.transform.scale, scaling_matrix);
+
+  mat3 translation_matrix;
+  gf_mat3_identity(translation_matrix);
+  gf_mat3_translate(obj->state.transform.pos, translation_matrix);
+
   mat3 transformation_matrix;
-  gf_mat3_identity(transformation_matrix);
-  gf_mat3_scale(obj->state.transform.scale, transformation_matrix);
-  gf_mat3_translate(obj->state.transform.pos, transformation_matrix);
+  gf_mat3_mul(scaling_matrix, translation_matrix, transformation_matrix);
 
   glProgramUniformMatrix3fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,

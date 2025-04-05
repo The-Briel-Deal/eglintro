@@ -28,7 +28,7 @@ const char *vert_shader_src =
     "\n"
     "void main()\n"
     "{\n"
-    "    gl_Position =  projection_mat * vec4(transformation_mat * vec3(aPos, 1.0), 1.0);\n"
+    "    gl_Position = projection_mat * vec4(vec2(transformation_mat * vec3(aPos, 1.0)), 0.0, 1.0);\n"
     "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
     "}\n";
 
