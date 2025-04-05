@@ -117,7 +117,7 @@ void gf_shader_sync_transform(struct shader *shader) {
                             1, false, (GLfloat *)transformation_matrix);
 }
 
-void gf_commit_render_state(struct shader *shader) {
+void gf_shader_commit_state(struct shader *shader) {
   // Only sync if shader viewport out of sync with render state.
   struct viewport_dimensions *last_vp = &shader->state.last_committed_viewport,
                              *curr_vp = &render_state.viewport;

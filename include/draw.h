@@ -28,7 +28,7 @@ struct obj;
 struct shader;
 
 bool gf_draw_update_window_size(int32_t height, int32_t width);
-void gf_commit_render_state(struct shader *shader);
+void gf_shader_commit_state(struct shader *shader);
 
 struct obj *gf_obj_create_box(const struct box_verts *box_verts);
 bool gf_obj_set_shader(struct obj *obj, struct shader *shader);
