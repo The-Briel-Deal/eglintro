@@ -25,6 +25,7 @@ struct obj;
 struct shader;
 
 typedef vec2s tf_scale;
+typedef vec2s tf_pos;
 
 bool gf_draw_update_window_size(int32_t height, int32_t width);
 void gf_shader_commit_state(struct shader *shader);
@@ -33,7 +34,10 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts);
 bool gf_obj_set_shader(struct obj *obj, struct shader *shader);
 
 tf_scale gf_obj_get_scale(struct obj *obj);
-void gf_obj_set_scale(struct obj *obj, const float x, const float y);
+void gf_obj_set_scale(struct obj *obj, tf_scale scale);
+
+tf_pos gf_obj_get_pos(struct obj *obj);
+void gf_obj_set_pos(struct obj *obj, tf_pos pos);
 
 void gf_obj_commit_state(struct obj *obj);
 bool gf_obj_draw(struct obj *obj);

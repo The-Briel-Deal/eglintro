@@ -62,6 +62,7 @@ struct obj {
   struct obj_state {
     struct transform {
       tf_scale scale;
+      tf_pos pos;
       bool dirty;
     } transform;
   } state;
@@ -185,7 +186,11 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
           {
               .scale.x = 3.0f,
               .scale.y = 3.0f,
-              .dirty   = true,
+
+              .pos.x = 100.0f,
+              .pos.y = 100.0f,
+
+              .dirty = true,
           },
   };
   return obj;
@@ -217,9 +222,18 @@ tf_scale gf_obj_get_scale(struct obj *obj) {
   return obj->state.transform.scale;
 }
 
-void gf_obj_set_scale(struct obj *obj, const float x, const float y) {
-  obj->state.transform.scale = (tf_scale){x, y};
+void gf_obj_set_scale(struct obj *obj, tf_scale scale) {
+  obj->state.transform.scale = scale;
   obj->state.transform.dirty = true;
+}
+
+void gf_obj_set_pos(struct obj *obj, tf_pos pos) {
+  obj->state.transform.pos   = pos;
+  obj->state.transform.dirty = true;
+}
+
+tf_pos gf_obj_get_pos(struct obj *obj) {
+	return obj->state.transform.pos;
 }
 
 void gf_obj_commit_state(struct obj *obj) {
