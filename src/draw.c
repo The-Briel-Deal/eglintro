@@ -40,7 +40,7 @@ struct shader {
   GLuint frag;
   GLuint program;
   struct shader_state {
-    struct viewport_dimensions last_commited_viewport;
+    struct viewport_dimensions last_committed_viewport;
     struct transform {
       float scale_x;
       float scale_y;
@@ -106,8 +106,8 @@ bool gf_draw_update_window_size(int32_t width, int32_t height) {
 }
 
 void gf_shader_sync_projection_matrix(struct shader *shader) {
-  int h = shader->state.last_commited_viewport.height;
-  int w = shader->state.last_commited_viewport.width;
+  int h = shader->state.last_committed_viewport.height;
+  int w = shader->state.last_committed_viewport.width;
 
   gf_log(INFO_LOG,
          "Syncing projection matrix (h: %i, w: %i) to shader program '%i'.", h,
@@ -137,12 +137,11 @@ void gf_shader_sync_transform(struct shader *shader) {
 
 void gf_commit_render_state(struct shader *shader) {
   // Only sync if shader viewport out of sync with render state.
-  if (shader->state.last_commited_viewport.height !=
-          render_state.viewport.height ||
-      shader->state.last_commited_viewport.width !=
-          render_state.viewport.width) {
-    shader->state.last_commited_viewport.height = render_state.viewport.height;
-    shader->state.last_commited_viewport.width  = render_state.viewport.width;
+  struct viewport_dimensions *last_vp = &shader->state.last_committed_viewport,
+                             *curr_vp = &render_state.viewport;
+  if (last_vp->height != curr_vp->height || last_vp->width != curr_vp->width) {
+    last_vp->height = curr_vp->height;
+    last_vp->width  = curr_vp->width;
     gf_shader_sync_projection_matrix(shader);
   }
   if (shader->state.transform.dirty == true) {
@@ -178,7 +177,7 @@ struct shader *gf_compile_shaders(const char *vert_shader_src,
   glLinkProgram(shader->program);
 
   shader->state = (struct shader_state){
-      .last_commited_viewport =
+      .last_committed_viewport =
           {
               .height = 0,
               .width  = 0,
