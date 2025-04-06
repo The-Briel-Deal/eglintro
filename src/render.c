@@ -213,24 +213,24 @@ void gf_obj_sync_transform(struct obj *obj) {
          obj->state.transform.pos.x, obj->state.transform.pos.y,
          obj->shader->program);
 
-  mat4 scaling_matrix;
-  gf_mat4_identity(scaling_matrix);
-  gf_mat4_scale(obj->state.transform.scale, scaling_matrix);
+  mat4 scale;
+  gf_mat4_identity(scale);
+  gf_mat4_scale(obj->state.transform.scale, scale);
 
-  gf_mat4_print(scaling_matrix, "Scaling Mat");
+  gf_mat4_print(scale, "Scaling Mat");
 
-  mat4 translation_matrix;
-  gf_mat4_identity(translation_matrix);
-  gf_mat4_translate(obj->state.transform.pos, translation_matrix);
-  gf_mat4_print(translation_matrix, "Translation Mat");
+  mat4 translate;
+  gf_mat4_identity(translate);
+  gf_mat4_translate(obj->state.transform.pos, translate);
+  gf_mat4_print(translate, "Translation Mat");
 
-  mat4 transformation_matrix;
-  gf_mat4_mul(translation_matrix, scaling_matrix, transformation_matrix);
-  gf_mat4_print(transformation_matrix, "Transformation Mat");
+  mat4 model;
+  gf_mat4_mul(translate, scale, model);
+  gf_mat4_print(model, "Model Mat");
 
   glProgramUniformMatrix4fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
-                            (GLfloat *)transformation_matrix);
+                            (GLfloat *)model);
 }
 
 tf_scale gf_obj_get_scale(struct obj *obj) {
