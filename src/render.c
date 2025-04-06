@@ -63,6 +63,7 @@ struct obj {
     struct transform {
       tf_scale scale;
       tf_pos pos;
+      radians rotation;
       bool dirty;
     } transform;
   } state;
@@ -228,6 +229,8 @@ void gf_obj_sync_transform(struct obj *obj) {
   gf_mat4_mul(translate, scale, model);
   gf_mat4_print(model, "Model Mat");
 
+  gf_mat4_rotate2d(model, obj->state.transform.rotation);
+
   glProgramUniformMatrix4fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
                             (GLfloat *)model);
@@ -249,6 +252,20 @@ void gf_obj_set_pos(struct obj *obj, tf_pos pos) {
 
 tf_pos gf_obj_get_pos(struct obj *obj) {
   return obj->state.transform.pos;
+}
+
+void gf_obj_set_rotation(struct obj *obj, radians rotation) {
+  obj->state.transform.rotation = rotation;
+  obj->state.transform.dirty    = true;
+}
+
+void gf_obj_rotate_by(struct obj *obj, radians rotation) {
+  obj->state.transform.rotation += rotation;
+  obj->state.transform.dirty    = true;
+}
+
+radians gf_obj_get_rotation(struct obj *obj) {
+  return obj->state.transform.rotation;
 }
 
 void gf_obj_commit_state(struct obj *obj) {

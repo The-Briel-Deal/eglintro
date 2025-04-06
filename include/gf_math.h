@@ -29,6 +29,7 @@ typedef vec2s vertex;
 
 typedef vec2s tf_scale;
 typedef vec2s tf_pos;
+typedef float radians;
 
 static inline void gf_mat4_zero(mat4 dest) {
   memset(dest, 0x0, sizeof(mat4));
@@ -153,7 +154,7 @@ static inline void gf_mat4_translate(tf_pos pos, mat4 dest) {
   dest[3][1] = pos.y;
 }
 
-static inline void gf_mat4_rotate2d(mat3 m, float angle) {
+static inline void gf_mat4_rotate2d(mat4 m, float angle) {
   float m00 = m[0][0], m10 = m[1][0];
   float m01 = m[0][1], m11 = m[1][1];
   float m02 = m[0][2], m12 = m[1][2];

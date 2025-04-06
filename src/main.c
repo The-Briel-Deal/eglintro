@@ -68,6 +68,8 @@ int main() {
     gf_obj_set_scale(square,
                      (tf_scale){.x = scale.x + 0.001f, .y = scale.y + 0.001f});
 
+		gf_obj_rotate_by(square, 0.01f);
+
     gf_obj_commit_state(square);
 
     glClearColor(1.0, 1.0, 0.0, 1.0);

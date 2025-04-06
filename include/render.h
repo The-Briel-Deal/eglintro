@@ -35,6 +35,10 @@ void gf_obj_set_scale(struct obj *obj, tf_scale scale);
 tf_pos gf_obj_get_pos(struct obj *obj);
 void gf_obj_set_pos(struct obj *obj, tf_pos pos);
 
+radians gf_obj_get_rotation(struct obj *obj);
+void gf_obj_set_rotation(struct obj *obj, radians rotation);
+void gf_obj_rotate_by(struct obj *obj, radians rotation);
+
 void gf_obj_commit_state(struct obj *obj);
 bool gf_obj_draw(struct obj *obj);
 
