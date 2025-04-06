@@ -205,7 +205,7 @@ bool gf_obj_set_shader(struct obj *obj, struct shader *shader) {
   return true;
 }
 
-void gf_obj_sync_transform(struct obj *obj) {
+static void gf_obj_sync_transform(struct obj *obj) {
   gf_log(INFO_LOG,
          "Syncing transformations (scale: { x: '%f', y: '%f'}, pos: { x: '%f', "
          "y: '%f' }) to shader "
