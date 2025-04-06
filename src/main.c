@@ -21,16 +21,14 @@
 const char *vert_shader_src =
     "#version 450 core\n"
     "layout (location = " TO_STR(GF_ATTRIB_VERT_LOCATION) ") in vec2 aPos;\n"
-		"layout (location = " TO_STR(GF_UNIFORM_PROJECTION_MAT_LOCATION) ") uniform mat4 projection_mat;"
-		"layout (location = " TO_STR(GF_UNIFORM_TRANSFORM_MAT_LOCATION) ") uniform mat3 transformation_mat;"
+		"layout (location = " TO_STR(GF_UNIFORM_TRANSFORM_MAT_LOCATION) ") uniform mat4 model;"
+		"layout (location = " TO_STR(GF_UNIFORM_PROJECTION_MAT_LOCATION) ") uniform mat4 projection;"
 		"\n"
     "out vec4 vertexColor;\n"
     "\n"
     "void main()\n"
     "{\n"
-    "    vec3 transformed_pos = transformation_mat * vec3(aPos, 1.0);\n"
-    "    transformed_pos.z = 0.0;\n"
-    "    gl_Position = projection_mat * vec4(transformed_pos, 1.0);\n"
+    "    gl_Position = projection * model * vec4(aPos, 0.0, 1.0);\n"
     "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
     "}\n";
 
