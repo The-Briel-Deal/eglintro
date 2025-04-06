@@ -103,6 +103,8 @@ void gf_shader_sync_projection_matrix(struct shader *shader) {
   mat4 perspective_matrix;
   gf_ortho(0.0f, w, 0, h, -1.0, 1.0, perspective_matrix);
 
+	gf_mat4_print(perspective_matrix, "Perspective Matrix");
+
   glProgramUniformMatrix4fv(shader->program, GF_UNIFORM_PROJECTION_MAT_LOCATION,
                             1, false, (GLfloat *)perspective_matrix);
 }
@@ -187,8 +189,8 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
               .scale.x = 1.0f,
               .scale.y = 1.0f,
 
-              .pos.x = 100.0f,
-              .pos.y = 100.0f,
+              .pos.x = 300.0f,
+              .pos.y = 300.0f,
 
               .dirty = true,
           },
@@ -213,22 +215,22 @@ void gf_obj_sync_transform(struct obj *obj) {
          obj->state.transform.pos.x, obj->state.transform.pos.y,
          obj->shader->program);
 
-  mat3 scaling_matrix;
-  gf_mat3_identity(scaling_matrix);
-  gf_mat3_scale(obj->state.transform.scale, scaling_matrix);
+  mat4 scaling_matrix;
+  gf_mat4_identity(scaling_matrix);
+  gf_mat4_scale(obj->state.transform.scale, scaling_matrix);
 
-  gf_mat3_print(scaling_matrix, "Scaling Mat");
+  gf_mat4_print(scaling_matrix, "Scaling Mat");
 
-  mat3 translation_matrix;
-  gf_mat3_identity(translation_matrix);
-  gf_mat3_translate(obj->state.transform.pos, translation_matrix);
-  gf_mat3_print(translation_matrix, "Translation Mat");
+  mat4 translation_matrix;
+  gf_mat4_identity(translation_matrix);
+  gf_mat4_translate(obj->state.transform.pos, translation_matrix);
+  gf_mat4_print(translation_matrix, "Translation Mat");
 
-  mat3 transformation_matrix;
-  gf_mat3_mul(scaling_matrix, translation_matrix, transformation_matrix);
-  gf_mat3_print(transformation_matrix, "Transformation Mat");
+  mat4 transformation_matrix;
+  gf_mat4_mul(scaling_matrix, translation_matrix, transformation_matrix);
+  gf_mat4_print(transformation_matrix, "Transformation Mat");
 
-  glProgramUniformMatrix3fv(obj->shader->program,
+  glProgramUniformMatrix4fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
                             (GLfloat *)transformation_matrix);
 }

@@ -22,15 +22,15 @@ const char *vert_shader_src =
     "#version 450 core\n"
     "layout (location = " TO_STR(GF_ATTRIB_VERT_LOCATION) ") in vec2 aPos;\n"
 		"layout (location = " TO_STR(GF_UNIFORM_PROJECTION_MAT_LOCATION) ") uniform mat4 projection_mat;"
-		"layout (location = " TO_STR(GF_UNIFORM_TRANSFORM_MAT_LOCATION) ") uniform mat3 transformation_mat;"
+		"layout (location = " TO_STR(GF_UNIFORM_TRANSFORM_MAT_LOCATION) ") uniform mat4 transformation_mat;"
 		"\n"
     "out vec4 vertexColor;\n"
     "\n"
     "void main()\n"
     "{\n"
-    "    vec3 transformed_pos = transformation_mat * vec3(aPos, 1.0);\n"
-    "    transformed_pos.z = 0.0;\n"
-    "    gl_Position = projection_mat * vec4(transformed_pos, 1.0);\n"
+    "    "
+    "    vec4 transformed_pos = projection_mat * transformation_mat * vec4(aPos.xy, 0.0, 1.0);\n"
+    "    gl_Position = transformed_pos;\n"
     "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
     "}\n";
 
@@ -45,10 +45,10 @@ const char *frag_shader_src =
     "}\n";
 
 struct box_verts square_verts = {
-    {.x = 200, .y = 200},
-    {.x = 100, .y = 200},
-    {.x = 200, .y = 100},
     {.x = 100, .y = 100},
+    {.x = -100, .y = 100},
+    {.x = 100, .y = -100},
+    {.x = -100, .y = -100},
 };
 
 int main() {
