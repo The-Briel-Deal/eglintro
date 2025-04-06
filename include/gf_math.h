@@ -7,6 +7,7 @@
 // I wasn't using a ton of stuff from the library so I just took and modified
 // what I needed and put it in this header.
 
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -151,6 +152,26 @@ static inline void gf_mat4_translate(tf_pos pos, mat4 dest) {
   dest[3][0] = pos.x;
   dest[3][1] = pos.y;
 }
+
+static inline void gf_mat4_rotate2d(mat3 m, float angle) {
+  float m00 = m[0][0], m10 = m[1][0];
+  float m01 = m[0][1], m11 = m[1][1];
+  float m02 = m[0][2], m12 = m[1][2];
+  float c, s;
+
+  s = sinf(angle);
+  c = cosf(angle);
+
+  m[0][0] = m00 * c + m10 * s;
+  m[0][1] = m01 * c + m11 * s;
+  m[0][2] = m02 * c + m12 * s;
+
+  m[1][0] = m00 * -s + m10 * c;
+  m[1][1] = m01 * -s + m11 * c;
+  m[1][2] = m02 * -s + m12 * c;
+}
+
+
 static inline void gf_mat4_print(mat4 mat, char *name) {
   printf("\nMat '%s':\n", name);
   printf("%f %f %f %f\n", mat[0][0], mat[1][0], mat[2][0], mat[3][0]);
