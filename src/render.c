@@ -184,11 +184,11 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
   obj->state = (struct obj_state){
       .transform =
           {
-              .scale.x = 3.0f,
-              .scale.y = 3.0f,
+              .scale.x = 1.0f,
+              .scale.y = 1.0f,
 
-              .pos.x = 1.0f,
-              .pos.y = 1.0f,
+              .pos.x = 100.0f,
+              .pos.y = 100.0f,
 
               .dirty = true,
           },
@@ -206,21 +206,27 @@ bool gf_obj_set_shader(struct obj *obj, struct shader *shader) {
 
 void gf_obj_sync_transform(struct obj *obj) {
   gf_log(INFO_LOG,
-         "Syncing transformations (scale: { x: '%f', y: '%f'}) to shader "
+         "Syncing transformations (scale: { x: '%f', y: '%f'}, pos: { x: '%f', "
+         "y: '%f' }) to shader "
          "program '%i'.",
          obj->state.transform.scale.x, obj->state.transform.scale.y,
+         obj->state.transform.pos.x, obj->state.transform.pos.y,
          obj->shader->program);
 
   mat3 scaling_matrix;
   gf_mat3_identity(scaling_matrix);
   gf_mat3_scale(obj->state.transform.scale, scaling_matrix);
 
+  gf_mat3_print(scaling_matrix, "Scaling Mat");
+
   mat3 translation_matrix;
   gf_mat3_identity(translation_matrix);
   gf_mat3_translate(obj->state.transform.pos, translation_matrix);
+  gf_mat3_print(translation_matrix, "Translation Mat");
 
   mat3 transformation_matrix;
   gf_mat3_mul(scaling_matrix, translation_matrix, transformation_matrix);
+  gf_mat3_print(transformation_matrix, "Transformation Mat");
 
   glProgramUniformMatrix3fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,

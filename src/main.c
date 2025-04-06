@@ -28,7 +28,9 @@ const char *vert_shader_src =
     "\n"
     "void main()\n"
     "{\n"
-    "    gl_Position = projection_mat * vec4(vec2(transformation_mat * vec3(aPos, 1.0)), 0.0, 1.0);\n"
+    "    vec3 transformed_pos = transformation_mat * vec3(aPos, 1.0);\n"
+    "    transformed_pos.z = 0.0;\n"
+    "    gl_Position = projection_mat * vec4(transformed_pos, 1.0);\n"
     "    vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
     "}\n";
 
@@ -43,10 +45,10 @@ const char *frag_shader_src =
     "}\n";
 
 struct box_verts square_verts = {
+    {.x = 200, .y = 200},
+    {.x = 100, .y = 200},
+    {.x = 200, .y = 100},
     {.x = 100, .y = 100},
-    {.x = 0, .y = 100},
-    {.x = 100, .y = 0},
-    {.x = 0, .y = 0},
 };
 
 int main() {

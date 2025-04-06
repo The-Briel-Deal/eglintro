@@ -7,6 +7,7 @@
 // I wasn't using a ton of stuff from the library so I just took and modified
 // what I needed and put it in this header.
 
+#include <stdio.h>
 #include <string.h>
 
 // Array Based Vector and Matrix.
@@ -93,6 +94,13 @@ static inline void gf_mat3_scale(tf_scale scale, mat3 dest) {
 static inline void gf_mat3_translate(tf_pos pos, mat3 dest) {
   dest[0][2] = pos.x;
   dest[1][2] = pos.y;
+}
+
+static inline void gf_mat3_print(mat3 mat, char *name) {
+  printf("\nMat '%s':\n", name);
+  printf("%f %f %f\n", mat[0][0], mat[0][1], mat[0][2]);
+  printf("%f %f %f\n", mat[1][0], mat[1][1], mat[1][2]);
+  printf("%f %f %f\n", mat[2][0], mat[2][1], mat[2][2]);
 }
 
 #endif
