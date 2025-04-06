@@ -225,7 +225,7 @@ void gf_obj_sync_transform(struct obj *obj) {
   gf_mat3_print(translation_matrix, "Translation Mat");
 
   mat3 transformation_matrix;
-  gf_mat3_mul(scaling_matrix, translation_matrix, transformation_matrix);
+  gf_mat3_mul(translation_matrix, scaling_matrix, transformation_matrix);
   gf_mat3_print(transformation_matrix, "Transformation Mat");
 
   glProgramUniformMatrix3fv(obj->shader->program,

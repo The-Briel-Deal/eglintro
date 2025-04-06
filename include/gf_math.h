@@ -92,15 +92,15 @@ static inline void gf_mat3_scale(tf_scale scale, mat3 dest) {
 }
 
 static inline void gf_mat3_translate(tf_pos pos, mat3 dest) {
-  dest[0][2] = pos.x;
-  dest[1][2] = pos.y;
+  dest[2][0] = pos.x;
+  dest[2][1] = pos.y;
 }
 
 static inline void gf_mat3_print(mat3 mat, char *name) {
   printf("\nMat '%s':\n", name);
-  printf("%f %f %f\n", mat[0][0], mat[0][1], mat[0][2]);
-  printf("%f %f %f\n", mat[1][0], mat[1][1], mat[1][2]);
-  printf("%f %f %f\n", mat[2][0], mat[2][1], mat[2][2]);
+  printf("%f %f %f\n", mat[0][0], mat[1][0], mat[2][0]);
+  printf("%f %f %f\n", mat[0][1], mat[1][1], mat[2][1]);
+  printf("%f %f %f\n", mat[0][2], mat[1][2], mat[2][2]);
 }
 
 static const mat4 MAT4_IDENTITY = {
@@ -148,15 +148,15 @@ static inline void gf_mat4_scale(tf_scale scale, mat4 dest) {
 }
 
 static inline void gf_mat4_translate(tf_pos pos, mat4 dest) {
-  dest[0][3] = pos.x;
-  dest[1][3] = pos.y;
+  dest[3][0] = pos.x;
+  dest[3][1] = pos.y;
 }
 static inline void gf_mat4_print(mat4 mat, char *name) {
   printf("\nMat '%s':\n", name);
-  printf("%f %f %f %f\n", mat[0][0], mat[0][1], mat[0][2], mat[0][3]);
-  printf("%f %f %f %f\n", mat[1][0], mat[1][1], mat[1][2], mat[1][3]);
-  printf("%f %f %f %f\n", mat[2][0], mat[2][1], mat[2][2], mat[2][3]);
-  printf("%f %f %f %f\n", mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
+  printf("%f %f %f %f\n", mat[0][0], mat[1][0], mat[2][0], mat[3][0]);
+  printf("%f %f %f %f\n", mat[0][1], mat[1][1], mat[2][1], mat[3][1]);
+  printf("%f %f %f %f\n", mat[0][2], mat[1][2], mat[2][2], mat[3][2]);
+  printf("%f %f %f %f\n", mat[0][3], mat[1][3], mat[2][3], mat[3][3]);
 }
 
 #endif
