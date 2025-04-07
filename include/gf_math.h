@@ -144,15 +144,36 @@ static inline void gf_mat4_mul(mat4 m1, mat4 m2, mat4 dest) {
   dest[3][3] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
 }
 
-static inline void gf_mat4_scale(tf_scale scale, mat4 dest) {
+static inline void gf_mat4_scale2d_new(tf_scale scale, mat4 dest) {
+  gf_mat4_identity(dest);
   dest[0][0] = scale.x;
   dest[1][1] = scale.y;
 }
 
-static inline void gf_mat4_translate(tf_pos pos, mat4 dest) {
+static inline void gf_mat4_scale2d(mat4 m, tf_scale scale) {
+  m[0][0] = m[0][0] * scale.x;
+  m[0][1] = m[0][1] * scale.x;
+  m[0][2] = m[0][2] * scale.x;
+
+  m[1][0] = m[1][0] * scale.y;
+  m[1][1] = m[1][1] * scale.y;
+  m[1][2] = m[1][2] * scale.y;
+}
+
+
+static inline void gf_mat4_translate2d_new(tf_pos pos, mat4 dest) {
+  gf_mat4_identity(dest);
   dest[3][0] = pos.x;
   dest[3][1] = pos.y;
 }
+
+// TODO: Look at cglm for a better way to do this.
+static inline void gf_mat4_translate2d(mat4 m, tf_pos pos) {
+	mat4 temp;
+	gf_mat4_translate2d_new(pos, temp);
+	gf_mat4_mul(m, temp, m);
+}
+
 
 static inline void gf_mat4_rotate2d(mat4 m, float angle) {
   float m00 = m[0][0], m10 = m[1][0];

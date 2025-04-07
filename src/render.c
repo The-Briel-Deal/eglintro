@@ -214,22 +214,11 @@ static void gf_obj_sync_transform(struct obj *obj) {
          obj->state.transform.pos.x, obj->state.transform.pos.y,
          obj->shader->program);
 
-  mat4 scale;
-  gf_mat4_identity(scale);
-  gf_mat4_scale(obj->state.transform.scale, scale);
-
-  gf_mat4_print(scale, "Scaling Mat");
-
-  mat4 translate;
-  gf_mat4_identity(translate);
-  gf_mat4_translate(obj->state.transform.pos, translate);
-  gf_mat4_print(translate, "Translation Mat");
-
   mat4 model;
-  gf_mat4_mul(translate, scale, model);
-  gf_mat4_print(model, "Model Mat");
-
+  gf_mat4_identity(model);
+  gf_mat4_translate2d(model, obj->state.transform.pos);
   gf_mat4_rotate2d(model, obj->state.transform.rotation);
+  gf_mat4_scale2d(model, obj->state.transform.scale);
 
   glProgramUniformMatrix4fv(obj->shader->program,
                             GF_UNIFORM_TRANSFORM_MAT_LOCATION, 1, false,
@@ -261,7 +250,7 @@ void gf_obj_set_rotation(struct obj *obj, radians rotation) {
 
 void gf_obj_rotate_by(struct obj *obj, radians rotation) {
   obj->state.transform.rotation += rotation;
-  obj->state.transform.dirty    = true;
+  obj->state.transform.dirty = true;
 }
 
 radians gf_obj_get_rotation(struct obj *obj) {
