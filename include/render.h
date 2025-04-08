@@ -3,6 +3,7 @@
 
 
 #include "gf_math.h"
+#include <GL/gl.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -18,9 +19,21 @@ struct box_verts {
   vertex bottom_right;
   vertex bottom_left;
 };
-struct obj;
 
-struct shader;
+struct obj {
+  GLuint vbo;
+  GLuint vao;
+  GLuint ebo;
+  struct obj_state {
+    struct transform {
+      tf_scale scale;
+      tf_pos pos;
+      radians rotation;
+      bool dirty;
+    } transform;
+  } state;
+  struct shader *shader;
+};
 
 
 bool gf_draw_update_window_size(int32_t height, int32_t width);

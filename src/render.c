@@ -55,21 +55,6 @@ static struct shader_program_list shader_program_list = {
 };
 
 
-struct obj {
-  GLuint vbo;
-  GLuint vao;
-  GLuint ebo;
-  struct obj_state {
-    struct transform {
-      tf_scale scale;
-      tf_pos pos;
-      radians rotation;
-      bool dirty;
-    } transform;
-  } state;
-  struct shader *shader;
-};
-
 struct obj_list {
   int count;
   int capacity;
