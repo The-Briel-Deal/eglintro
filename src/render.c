@@ -58,7 +58,7 @@ static struct shader_program_list shader_program_list = {
 struct obj_list {
   int count;
   int capacity;
-  struct obj objs[OBJ_LIST_MAX];
+  struct gf_obj objs[OBJ_LIST_MAX];
 };
 
 static struct obj_list obj_list = {
@@ -141,7 +141,7 @@ struct shader *gf_compile_shaders(const char *vert_shader_src,
 }
 
 
-struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
+struct gf_obj *gf_obj_create_box(const struct box_verts *box_verts) {
   if (obj_list.count + 1 >= obj_list.capacity) {
     gf_log(DEBUG_LOG,
            "`box_obj_list` has a count of '%i', which is greater than "
@@ -150,7 +150,7 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
     return NULL;
   }
 
-  struct obj *obj = &obj_list.objs[obj_list.count++];
+  struct gf_obj *obj = &obj_list.objs[obj_list.count++];
 
   glCreateBuffers(1, &obj->vbo);
   glNamedBufferStorage(obj->vbo, sizeof(struct box_verts), box_verts,
@@ -182,7 +182,7 @@ struct obj *gf_obj_create_box(const struct box_verts *box_verts) {
   return obj;
 }
 
-bool gf_obj_set_shader(struct obj *obj, struct shader *shader) {
+bool gf_obj_set_shader(struct gf_obj *obj, struct shader *shader) {
   if (obj->shader == shader) {
     return false;
   }
@@ -190,7 +190,7 @@ bool gf_obj_set_shader(struct obj *obj, struct shader *shader) {
   return true;
 }
 
-static void gf_obj_sync_transform(struct obj *obj) {
+static void gf_obj_sync_transform(struct gf_obj *obj) {
   gf_log(INFO_LOG,
          "Syncing transformations (scale: { x: '%f', y: '%f'}, pos: { x: '%f', "
          "y: '%f' }) to shader "
@@ -210,39 +210,39 @@ static void gf_obj_sync_transform(struct obj *obj) {
                             (GLfloat *)model);
 }
 
-tf_scale gf_obj_get_scale(struct obj *obj) {
+tf_scale gf_obj_get_scale(struct gf_obj *obj) {
   return obj->state.transform.scale;
 }
 
-void gf_obj_set_scale(struct obj *obj, tf_scale scale) {
+void gf_obj_set_scale(struct gf_obj *obj, tf_scale scale) {
   obj->state.transform.scale = scale;
   obj->state.transform.dirty = true;
 }
 
-void gf_obj_set_pos(struct obj *obj, tf_pos pos) {
+void gf_obj_set_pos(struct gf_obj *obj, tf_pos pos) {
   obj->state.transform.pos   = pos;
   obj->state.transform.dirty = true;
 }
 
-tf_pos gf_obj_get_pos(struct obj *obj) {
+tf_pos gf_obj_get_pos(struct gf_obj *obj) {
   return obj->state.transform.pos;
 }
 
-void gf_obj_set_rotation(struct obj *obj, radians rotation) {
+void gf_obj_set_rotation(struct gf_obj *obj, radians rotation) {
   obj->state.transform.rotation = rotation;
   obj->state.transform.dirty    = true;
 }
 
-void gf_obj_rotate_by(struct obj *obj, radians rotation) {
+void gf_obj_rotate_by(struct gf_obj *obj, radians rotation) {
   obj->state.transform.rotation += rotation;
   obj->state.transform.dirty = true;
 }
 
-radians gf_obj_get_rotation(struct obj *obj) {
+radians gf_obj_get_rotation(struct gf_obj *obj) {
   return obj->state.transform.rotation;
 }
 
-void gf_obj_commit_state(struct obj *obj) {
+void gf_obj_commit_state(struct gf_obj *obj) {
   if (obj->state.transform.dirty == true) {
     obj->state.transform.dirty = false;
     gf_obj_sync_transform(obj);
@@ -250,7 +250,7 @@ void gf_obj_commit_state(struct obj *obj) {
   gf_shader_commit_state(obj->shader);
 }
 
-bool gf_obj_draw(struct obj *obj) {
+bool gf_obj_draw(struct gf_obj *obj) {
   glUseProgram(obj->shader->program);
   glBindVertexArray(obj->vao);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

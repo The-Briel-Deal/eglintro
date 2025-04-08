@@ -20,7 +20,7 @@ struct box_verts {
   vertex bottom_left;
 };
 
-struct obj {
+struct gf_obj {
   GLuint vbo;
   GLuint vao;
   GLuint ebo;
@@ -39,21 +39,21 @@ struct obj {
 bool gf_draw_update_window_size(int32_t height, int32_t width);
 void gf_shader_commit_state(struct shader *shader);
 
-struct obj *gf_obj_create_box(const struct box_verts *box_verts);
-bool gf_obj_set_shader(struct obj *obj, struct shader *shader);
+struct gf_obj *gf_obj_create_box(const struct box_verts *box_verts);
+bool gf_obj_set_shader(struct gf_obj *obj, struct shader *shader);
 
-tf_scale gf_obj_get_scale(struct obj *obj);
-void gf_obj_set_scale(struct obj *obj, tf_scale scale);
+tf_scale gf_obj_get_scale(struct gf_obj *obj);
+void gf_obj_set_scale(struct gf_obj *obj, tf_scale scale);
 
-tf_pos gf_obj_get_pos(struct obj *obj);
-void gf_obj_set_pos(struct obj *obj, tf_pos pos);
+tf_pos gf_obj_get_pos(struct gf_obj *obj);
+void gf_obj_set_pos(struct gf_obj *obj, tf_pos pos);
 
-radians gf_obj_get_rotation(struct obj *obj);
-void gf_obj_set_rotation(struct obj *obj, radians rotation);
-void gf_obj_rotate_by(struct obj *obj, radians rotation);
+radians gf_obj_get_rotation(struct gf_obj *obj);
+void gf_obj_set_rotation(struct gf_obj *obj, radians rotation);
+void gf_obj_rotate_by(struct gf_obj *obj, radians rotation);
 
-void gf_obj_commit_state(struct obj *obj);
-bool gf_obj_draw(struct obj *obj);
+void gf_obj_commit_state(struct gf_obj *obj);
+bool gf_obj_draw(struct gf_obj *obj);
 
 struct shader *gf_compile_shaders(const char *vert_shader_src,
                                   const char *frag_shader_src);

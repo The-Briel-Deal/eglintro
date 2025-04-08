@@ -58,7 +58,7 @@ int main() {
   gf_log(INFO_LOG, "Version %s", glGetString(GL_VERSION));
 
   struct shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
-  struct obj *square    = gf_obj_create_box(&square_verts);
+  struct gf_obj *square = gf_obj_create_box(&square_verts);
   gf_obj_set_shader(square, shader);
   while (true) {
     wl_display_dispatch_pending(window.display);
@@ -68,7 +68,7 @@ int main() {
     gf_obj_set_scale(square,
                      (tf_scale){.x = scale.x + 0.001f, .y = scale.y + 0.001f});
 
-		gf_obj_rotate_by(square, 0.01f);
+    gf_obj_rotate_by(square, 0.01f);
 
     gf_obj_commit_state(square);
 
