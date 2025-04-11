@@ -9,6 +9,9 @@ endif
 ifeq (${DEBUG_SYM}, 1)
 	CFLAGS += -g
 endif
+ifeq (${GF_DEBUG_PLAYER_INPUT}, 1)
+	CFLAGS += -DGF_DEBUG_PLAYER_INPUT
+endif
 
 build/:
 	mkdir -p build
