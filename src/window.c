@@ -13,6 +13,15 @@
 #include "log.h"
 #include "window.h"
 
+// TODO: Turn this into a list of input listeners.
+static gf_keyboard_input_listener keyboard_input_listener = NULL;
+static void *keyboard_input_listener_data                 = NULL;
+
+void gf_register_input_listener(
+    gf_keyboard_input_listener _keyboard_input_listener, void *data) {
+  keyboard_input_listener      = _keyboard_input_listener;
+  keyboard_input_listener_data = data;
+}
 
 /* wl_registry Listener */
 static void global_registry_handler(void *data, struct wl_registry *registry,
@@ -159,6 +168,48 @@ static const struct wl_pointer_listener pointer_listener = {
     .button = wl_pointer_button,
 };
 
+static void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard,
+                               uint32_t format, int32_t fd, uint32_t size) {
+  gf_log(INFO_LOG, "wl_keyboard.keymap() called");
+}
+
+static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard,
+                              uint32_t serial, struct wl_surface *surface,
+                              struct wl_array *keys) {
+  gf_log(INFO_LOG, "wl_keyboard.enter() called");
+}
+static void wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard,
+                              uint32_t serial, struct wl_surface *surface) {
+  gf_log(INFO_LOG, "wl_keyboard.leave() called");
+}
+
+static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
+                            uint32_t serial, uint32_t time, uint32_t key,
+                            uint32_t state) {
+  gf_log(INFO_LOG, "wl_keyboard.key() called");
+}
+
+static void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard,
+                                  uint32_t serial, uint32_t mods_depressed,
+                                  uint32_t mods_latched, uint32_t mods_locked,
+                                  uint32_t group) {
+  gf_log(INFO_LOG, "wl_keyboard.modifiers() called");
+}
+
+static void wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard,
+                                    int32_t rate, int32_t delay) {
+  gf_log(INFO_LOG, "wl_keyboard.repeat_info() called");
+}
+
+
+static const struct wl_keyboard_listener keyboard_listener = {
+    .keymap      = wl_keyboard_keymap,
+    .enter       = wl_keyboard_enter,
+    .leave       = wl_keyboard_leave,
+    .key         = wl_keyboard_key,
+    .modifiers   = wl_keyboard_modifiers,
+    .repeat_info = wl_keyboard_repeat_info,
+};
 
 bool init_gf_window(struct gf_window *window) {
   int err;
@@ -210,6 +261,10 @@ bool init_gf_window(struct gf_window *window) {
       window->cursor_shape_manager, window->wl_pointer);
 
   wl_pointer_add_listener(window->wl_pointer, &pointer_listener, window);
+
+  window->wl_keyboard = wl_seat_get_keyboard(window->wl_seat);
+  wl_keyboard_add_listener(window->wl_keyboard, &keyboard_listener, window);
+
 
   return window;
 }

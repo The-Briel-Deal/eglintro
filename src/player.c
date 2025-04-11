@@ -3,6 +3,7 @@
 #include "common.h"
 #include "log.h"
 #include "render.h"
+#include <sys/types.h>
 
 #define PLAYER_LIST_MAX 128
 
@@ -87,6 +88,13 @@ struct gf_player *gf_player_create() {
   gf_obj_commit_state(player->obj);
 
   return player;
+}
+
+void gf_player_input_listener(u_int key, void *data) {
+  // struct gf_player *player = data;
+#ifdef GF_DEBUG_PLAYER_INPUT
+  gf_log(DEBUG_LOG, "Key Pressed: '%i'", key);
+#endif
 }
 
 void gf_player_draw(struct gf_player *player) {
