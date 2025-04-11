@@ -20,20 +20,8 @@ struct box_verts {
   vertex bottom_left;
 };
 
-struct gf_obj {
-  GLuint vbo;
-  GLuint vao;
-  GLuint ebo;
-  struct obj_state {
-    struct transform {
-      tf_scale scale;
-      tf_pos pos;
-      radians rotation;
-      bool dirty;
-    } transform;
-  } state;
-  struct shader *shader;
-};
+struct gf_obj;
+struct shader;
 
 
 bool gf_draw_update_window_size(int32_t height, int32_t width);
