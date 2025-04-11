@@ -34,7 +34,7 @@ struct render_state render_state = {
         },
 };
 
-struct shader {
+struct gf_shader {
   GLuint vert;
   GLuint frag;
   GLuint program;
@@ -43,16 +43,7 @@ struct shader {
   } state;
 };
 
-struct shader_program_list {
-  int count;
-  int capacity;
-  struct shader shaders[SHADER_PROGRAM_LIST_MAX];
-};
-
-static struct shader_program_list shader_program_list = {
-    .count    = 0,
-    .capacity = SHADER_PROGRAM_LIST_MAX,
-};
+STATIC_LIST(gf_shader_list, struct gf_shader, SHADER_PROGRAM_LIST_MAX)
 
 struct gf_obj {
   GLuint vbo;
@@ -66,7 +57,7 @@ struct gf_obj {
       bool dirty;
     } transform;
   } state;
-  struct shader *shader;
+  struct gf_shader *shader;
 };
 
 struct obj_list {
@@ -90,7 +81,7 @@ bool gf_draw_update_window_size(int32_t width, int32_t height) {
   return true;
 }
 
-void gf_shader_sync_projection_matrix(struct shader *shader) {
+void gf_shader_sync_projection_matrix(struct gf_shader *shader) {
   int h = shader->state.last_committed_viewport.height;
   int w = shader->state.last_committed_viewport.width;
 
@@ -107,7 +98,7 @@ void gf_shader_sync_projection_matrix(struct shader *shader) {
                             1, false, (GLfloat *)projection);
 }
 
-void gf_shader_commit_state(struct shader *shader) {
+void gf_shader_commit_state(struct gf_shader *shader) {
   // Only sync if shader viewport out of sync with render state.
   struct viewport_dimensions *last_vp = &shader->state.last_committed_viewport,
                              *curr_vp = &render_state.viewport;
@@ -118,18 +109,18 @@ void gf_shader_commit_state(struct shader *shader) {
   }
 }
 
-struct shader *gf_compile_shaders(const char *vert_shader_src,
-                                  const char *frag_shader_src) {
-  if (shader_program_list.count + 1 >= shader_program_list.capacity) {
+struct gf_shader *gf_compile_shaders(const char *vert_shader_src,
+                                     const char *frag_shader_src) {
+  if (gf_shader_list.count + 1 >= gf_shader_list.capacity) {
     gf_log(DEBUG_LOG,
-           "`shader_program_list` has a count of '%i', which is greater than "
+           "`gf_shader_list` has a count of '%i', which is greater than "
            "it's capacity of '%i'.",
-           shader_program_list.count, shader_program_list.capacity);
+           gf_shader_list.count, gf_shader_list.capacity);
     return NULL;
   }
 
-  struct shader *shader =
-      &shader_program_list.shaders[shader_program_list.count++];
+  struct gf_shader *shader =
+      &gf_shader_list.items[gf_shader_list.count++];
 
   shader->vert = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(shader->vert, 1, &vert_shader_src, NULL);
@@ -196,7 +187,7 @@ struct gf_obj *gf_obj_create_box(const struct box_verts *box_verts) {
   return obj;
 }
 
-bool gf_obj_set_shader(struct gf_obj *obj, struct shader *shader) {
+bool gf_obj_set_shader(struct gf_obj *obj, struct gf_shader *shader) {
   if (obj->shader == shader) {
     return false;
   }

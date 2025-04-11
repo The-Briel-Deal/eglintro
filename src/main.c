@@ -57,7 +57,7 @@ int main() {
 
   gf_log(INFO_LOG, "Version %s", glGetString(GL_VERSION));
 
-  struct shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
+  struct gf_shader *shader = gf_compile_shaders(vert_shader_src, frag_shader_src);
   struct gf_obj *square = gf_obj_create_box(&square_verts);
   gf_obj_set_shader(square, shader);
   while (true) {

@@ -21,14 +21,14 @@ struct box_verts {
 };
 
 struct gf_obj;
-struct shader;
+struct gf_shader;
 
 
 bool gf_draw_update_window_size(int32_t height, int32_t width);
-void gf_shader_commit_state(struct shader *shader);
+void gf_shader_commit_state(struct gf_shader *shader);
 
 struct gf_obj *gf_obj_create_box(const struct box_verts *box_verts);
-bool gf_obj_set_shader(struct gf_obj *obj, struct shader *shader);
+bool gf_obj_set_shader(struct gf_obj *obj, struct gf_shader *shader);
 
 tf_scale gf_obj_get_scale(struct gf_obj *obj);
 void gf_obj_set_scale(struct gf_obj *obj, tf_scale scale);
@@ -43,7 +43,7 @@ void gf_obj_rotate_by(struct gf_obj *obj, radians rotation);
 void gf_obj_commit_state(struct gf_obj *obj);
 bool gf_obj_draw(struct gf_obj *obj);
 
-struct shader *gf_compile_shaders(const char *vert_shader_src,
+struct gf_shader *gf_compile_shaders(const char *vert_shader_src,
                                   const char *frag_shader_src);
 
 #endif

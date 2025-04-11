@@ -12,4 +12,16 @@
 #define STR_HELPER(val)                    #val
 #define TO_STR(val)                        STR_HELPER(val)
 
+#define STATIC_LIST(name, type, size)                                          \
+  struct name {                                                 \
+    int count;                                                                 \
+    int capacity;                                                              \
+    type items[size];                                              \
+  };                                                                           \
+                                                                               \
+  static struct name name = {                    \
+      .count    = 0,                                                           \
+      .capacity = size,                                                        \
+  };
+
 #endif
