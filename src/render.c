@@ -60,16 +60,7 @@ struct gf_obj {
   struct gf_shader *shader;
 };
 
-struct obj_list {
-  int count;
-  int capacity;
-  struct gf_obj objs[OBJ_LIST_MAX];
-};
-
-static struct obj_list obj_list = {
-    .count    = 0,
-    .capacity = OBJ_LIST_MAX,
-};
+STATIC_LIST(gf_obj_list, struct gf_obj, OBJ_LIST_MAX)
 
 bool gf_draw_update_window_size(int32_t width, int32_t height) {
   if (height == render_state.viewport.height &&
@@ -119,8 +110,7 @@ struct gf_shader *gf_compile_shaders(const char *vert_shader_src,
     return NULL;
   }
 
-  struct gf_shader *shader =
-      &gf_shader_list.items[gf_shader_list.count++];
+  struct gf_shader *shader = &gf_shader_list.items[gf_shader_list.count++];
 
   shader->vert = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(shader->vert, 1, &vert_shader_src, NULL);
@@ -147,15 +137,15 @@ struct gf_shader *gf_compile_shaders(const char *vert_shader_src,
 
 
 struct gf_obj *gf_obj_create_box(const struct box_verts *box_verts) {
-  if (obj_list.count + 1 >= obj_list.capacity) {
+  if (gf_obj_list.count + 1 >= gf_obj_list.capacity) {
     gf_log(DEBUG_LOG,
            "`box_obj_list` has a count of '%i', which is greater than "
            "it's capacity of '%i'.",
-           obj_list.count, obj_list.capacity);
+           gf_obj_list.count, gf_obj_list.capacity);
     return NULL;
   }
 
-  struct gf_obj *obj = &obj_list.objs[obj_list.count++];
+  struct gf_obj *obj = &gf_obj_list.items[gf_obj_list.count++];
 
   glCreateBuffers(1, &obj->vbo);
   glNamedBufferStorage(obj->vbo, sizeof(struct box_verts), box_verts,
