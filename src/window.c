@@ -17,9 +17,9 @@
 static gf_keyboard_input_listener keyboard_input_listener = NULL;
 static void *keyboard_input_listener_data                 = NULL;
 
-void gf_register_input_listener(
-    gf_keyboard_input_listener _keyboard_input_listener, void *data) {
-  keyboard_input_listener      = _keyboard_input_listener;
+void gf_window_register_input_listener(gf_keyboard_input_listener listener,
+                                       void *data) {
+  keyboard_input_listener      = listener;
   keyboard_input_listener_data = data;
 }
 
@@ -187,6 +187,13 @@ static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
                             uint32_t serial, uint32_t time, uint32_t key,
                             uint32_t state) {
   gf_log(INFO_LOG, "wl_keyboard.key() called");
+  if (keyboard_input_listener != NULL && keyboard_input_listener_data != NULL) {
+    keyboard_input_listener(key, keyboard_input_listener_data);
+  } else {
+    gf_log(DEBUG_LOG,
+           "wl_keyboard.key() was called, but keyboard_input_listener or "
+           "keyboard_input_listener_data was NULL");
+  }
 }
 
 static void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard,

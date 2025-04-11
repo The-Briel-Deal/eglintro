@@ -26,6 +26,7 @@ int main() {
   gf_log(INFO_LOG, "Version %s", glGetString(GL_VERSION));
 
   struct gf_player *player = gf_player_create();
+  gf_window_register_input_listener(gf_player_input_listener, player);
 
   while (true) {
     wl_display_dispatch_pending(window.display);

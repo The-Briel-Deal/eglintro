@@ -25,5 +25,7 @@ struct gf_window {
 };
 
 bool init_gf_window(struct gf_window *window);
+void gf_window_register_input_listener(gf_keyboard_input_listener listener,
+                                       void *data);
 
 #endif
