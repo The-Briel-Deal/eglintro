@@ -135,11 +135,17 @@ struct gf_shader *gf_compile_shaders(const char *vert_shader_src,
   return shader;
 }
 
+const struct box_verts square_verts = {
+    {.x = 50, .y = 50},
+    {.x = -50, .y = 50},
+    {.x = 50, .y = -50},
+    {.x = -50, .y = -50},
+};
 
-struct gf_obj *gf_obj_create_box(const struct box_verts *box_verts) {
+struct gf_obj *gf_obj_create_box() {
   if (gf_obj_list.count + 1 >= gf_obj_list.capacity) {
     gf_log(DEBUG_LOG,
-           "`box_obj_list` has a count of '%i', which is greater than "
+           "`gf_obj_list` has a count of '%i', which is greater than "
            "it's capacity of '%i'.",
            gf_obj_list.count, gf_obj_list.capacity);
     return NULL;
@@ -148,7 +154,7 @@ struct gf_obj *gf_obj_create_box(const struct box_verts *box_verts) {
   struct gf_obj *obj = &gf_obj_list.items[gf_obj_list.count++];
 
   glCreateBuffers(1, &obj->vbo);
-  glNamedBufferStorage(obj->vbo, sizeof(struct box_verts), box_verts,
+  glNamedBufferStorage(obj->vbo, sizeof(struct box_verts), &square_verts,
                        GL_DYNAMIC_STORAGE_BIT);
 
   glCreateBuffers(1, &obj->ebo);
