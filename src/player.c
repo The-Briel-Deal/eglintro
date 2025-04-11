@@ -4,6 +4,7 @@
 #include "log.h"
 #include "render.h"
 #include <sys/types.h>
+#include <xkbcommon/xkbcommon.h>
 
 #define PLAYER_LIST_MAX 128
 
@@ -90,7 +91,7 @@ struct gf_player *gf_player_create() {
   return player;
 }
 
-void gf_player_input_listener(u_int key, void *data) {
+void gf_player_input_listener(xkb_keysym_t key, void *data) {
   // struct gf_player *player = data;
 #ifdef GF_DEBUG_PLAYER_INPUT
   gf_log(DEBUG_LOG, "Key Pressed: '%i'", key);

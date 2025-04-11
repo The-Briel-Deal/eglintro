@@ -1,9 +1,15 @@
+
 #include <GL/gl.h>
+
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <unistd.h>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 #include <wayland-egl-core.h>
+#include <xkbcommon/xkbcommon.h>
 
 #include "common.h"
 #include "cursor-shape.h"
@@ -170,7 +176,26 @@ static const struct wl_pointer_listener pointer_listener = {
 
 static void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard,
                                uint32_t format, int32_t fd, uint32_t size) {
+  struct gf_window *window = data;
+
   gf_log(INFO_LOG, "wl_keyboard.keymap() called");
+  assert(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1);
+
+  char *keymap_shm = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+  assert(keymap_shm != MAP_FAILED);
+  window->xkb_keymap = xkb_keymap_new_from_string(
+      window->xkb_context, keymap_shm, XKB_KEYMAP_FORMAT_TEXT_V1,
+      XKB_KEYMAP_COMPILE_NO_FLAGS);
+  assert(window->xkb_keymap != NULL);
+
+  int e;
+  e = munmap(keymap_shm, size);
+  assert(e == 0);
+  e = close(fd);
+  assert(e == 0);
+
+  window->xkb_state = xkb_state_new(window->xkb_keymap);
+  assert(window->xkb_state != NULL);
 }
 
 static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard,
@@ -186,9 +211,11 @@ static void wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard,
 static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
                             uint32_t serial, uint32_t time, uint32_t key,
                             uint32_t state) {
+  struct gf_window *window = data;
+  xkb_keysym_t keysym = xkb_state_key_get_one_sym(window->xkb_state, key + 8);
   gf_log(INFO_LOG, "wl_keyboard.key() called");
   if (keyboard_input_listener != NULL && keyboard_input_listener_data != NULL) {
-    keyboard_input_listener(key, keyboard_input_listener_data);
+    keyboard_input_listener(keysym, keyboard_input_listener_data);
   } else {
     gf_log(DEBUG_LOG,
            "wl_keyboard.key() was called, but keyboard_input_listener or "
@@ -218,6 +245,7 @@ static const struct wl_keyboard_listener keyboard_listener = {
     .repeat_info = wl_keyboard_repeat_info,
 };
 
+// TODO: Rename to gf_window_init
 bool init_gf_window(struct gf_window *window) {
   int err;
 
@@ -269,9 +297,11 @@ bool init_gf_window(struct gf_window *window) {
 
   wl_pointer_add_listener(window->wl_pointer, &pointer_listener, window);
 
+  /* get keyboard & make xkb_context */
+  window->xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+
   window->wl_keyboard = wl_seat_get_keyboard(window->wl_seat);
   wl_keyboard_add_listener(window->wl_keyboard, &keyboard_listener, window);
-
 
   return window;
 }

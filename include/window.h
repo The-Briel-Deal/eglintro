@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <wayland-client-protocol.h>
+#include <xkbcommon/xkbcommon.h>
 
 #include "cursor-shape.h"
 
@@ -22,6 +23,9 @@ struct gf_window {
   struct wl_keyboard *wl_keyboard;
   struct wp_cursor_shape_manager_v1 *cursor_shape_manager;
   struct wp_cursor_shape_device_v1 *cursor_shape_device;
+  struct xkb_context *xkb_context;
+  struct xkb_keymap *xkb_keymap;
+  struct xkb_state *xkb_state;
 };
 
 bool init_gf_window(struct gf_window *window);
