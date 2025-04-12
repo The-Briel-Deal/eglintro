@@ -91,10 +91,25 @@ struct gf_player *gf_player_create() {
   return player;
 }
 
-void gf_player_input_listener(xkb_keysym_t key, void *data) {
-  // struct gf_player *player = data;
+void gf_player_input_listener(xkb_keysym_t key, bool pressed, void *data) {
+  struct gf_player *player = data;
+  if (pressed) {
+    switch (key) {
+      case XKB_KEY_w: player->input_state |= GF_PLAYER_INPUT_UP; break;
+      case XKB_KEY_a: player->input_state |= GF_PLAYER_INPUT_LEFT; break;
+      case XKB_KEY_s: player->input_state |= GF_PLAYER_INPUT_DOWN; break;
+      case XKB_KEY_d: player->input_state |= GF_PLAYER_INPUT_RIGHT; break;
+    }
+  } else {
+    switch (key) {
+      case XKB_KEY_w: player->input_state &= ~GF_PLAYER_INPUT_UP; break;
+      case XKB_KEY_a: player->input_state &= ~GF_PLAYER_INPUT_LEFT; break;
+      case XKB_KEY_s: player->input_state &= ~GF_PLAYER_INPUT_DOWN; break;
+      case XKB_KEY_d: player->input_state &= ~GF_PLAYER_INPUT_RIGHT; break;
+    }
+  }
 #ifdef GF_DEBUG_PLAYER_INPUT
-  gf_log(DEBUG_LOG, "Key Pressed: '%i'", key);
+  gf_log(DEBUG_LOG, "Key %s: '%i'", pressed ? "Pressed" : "Released", key);
 #endif
 }
 

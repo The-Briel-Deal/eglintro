@@ -215,7 +215,8 @@ static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
   xkb_keysym_t keysym = xkb_state_key_get_one_sym(window->xkb_state, key + 8);
   gf_log(INFO_LOG, "wl_keyboard.key() called");
   if (keyboard_input_listener != NULL && keyboard_input_listener_data != NULL) {
-    keyboard_input_listener(keysym, keyboard_input_listener_data);
+    keyboard_input_listener(keysym, state == WL_KEYBOARD_KEY_STATE_PRESSED,
+                            keyboard_input_listener_data);
   } else {
     gf_log(DEBUG_LOG,
            "wl_keyboard.key() was called, but keyboard_input_listener or "

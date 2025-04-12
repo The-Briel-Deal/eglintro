@@ -8,7 +8,7 @@
 
 #include "cursor-shape.h"
 
-typedef void (*gf_keyboard_input_listener)(u_int, void *);
+typedef void (*gf_keyboard_input_listener)(xkb_keysym_t, bool, void *);
 
 struct gf_window {
   struct wl_display *display;
