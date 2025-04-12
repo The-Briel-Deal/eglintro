@@ -4,6 +4,10 @@ HEADERS := $(wildcard include/*.h) build/protocols/include/xdg-shell.h build/pro
 SOURCES := $(wildcard src/*.c)
 OBJECTS := $(addprefix build/, $(notdir $(SOURCES:.c=.o)))
 
+TEST_HEADERS := $(HEADERS) $(wildcard test/include/*.h)
+TEST_SOURCES := $(wildcard test/src/*.c)
+TEST_OBJECTS := $(filter-out %/main.o, $(OBJECTS)) $(addprefix build/test/, $(notdir $(TEST_SOURCES:.c=.o)))
+
 ifdef LOG_LEVEL
 	CFLAGS += -DLOG_LEVEL=$(LOG_LEVEL)
 endif
@@ -13,6 +17,8 @@ endif
 ifeq (${GF_DEBUG_PLAYER_INPUT}, 1)
 	CFLAGS += -DGF_DEBUG_PLAYER_INPUT
 endif
+
+TEST_CFLAGS := $(CFLAGS) -Itest/include
 
 build/:
 	mkdir -p build
@@ -57,3 +63,18 @@ eglintro: $(OBJECTS) build/protocols/xdg-shell.o build/protocols/cursor-shape.o 
 
 run: eglintro
 	./eglintro
+
+# Test
+test: build/test/test
+build/test/test: $(TEST_OBJECTS) build/protocols/xdg-shell.o build/protocols/cursor-shape.o build/protocols/tablet.o
+	gcc $^ $(TEST_CFLAGS) -o build/test/test
+
+# Compile Object Files
+build/test/%.o: test/src/%.c $(TEST_HEADERS) | build/ build/test/
+	gcc $< -c $(TEST_CFLAGS) -o $@
+
+build/test/:
+	mkdir -p build/test
+
+run-test: build/test/test
+	exec $<
