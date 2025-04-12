@@ -1,15 +1,16 @@
+#include <sys/types.h>
+#include <time.h>
+#include <xkbcommon/xkbcommon.h>
 
-#include "player.h"
 #include "common.h"
 #include "gf_math.h"
 #include "log.h"
+#include "player.h"
 #include "render.h"
-#include <sys/types.h>
-#include <xkbcommon/xkbcommon.h>
 
 #define PLAYER_LIST_MAX 128
 
-#define PLAYER_SPEED 3.0f
+#define PLAYER_SPEED    300.0f
 
 enum gf_player_input_state {
   GF_PLAYER_INPUT_UP    = 0b0001,
@@ -116,7 +117,8 @@ void gf_player_input_listener(xkb_keysym_t key, bool pressed, void *data) {
 #endif
 }
 
-void gf_player_update_state(struct gf_player *player, float delta_time) {
+void gf_player_update_state(struct gf_player *player, double delta_time) {
+  gf_log(DEBUG_LOG, "Delta Time: '%f'", delta_time);
   vec2s movement_vector = {.x = 0.0, .y = 0.0};
   if (player->input_state & GF_PLAYER_INPUT_UP)
     movement_vector.y += 1.0;
@@ -131,8 +133,9 @@ void gf_player_update_state(struct gf_player *player, float delta_time) {
     return;
   }
 
+
   gf_vec2s_normalize(&movement_vector);
-	gf_vec2s_scale(&movement_vector, PLAYER_SPEED);
+  gf_vec2s_scale(&movement_vector, PLAYER_SPEED * delta_time);
 
   vec2s pos = gf_obj_get_pos(player->obj);
   pos.x += movement_vector.x;

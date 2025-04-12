@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <time.h>
 #include <unistd.h>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
@@ -16,6 +17,12 @@
 #include "player.h"
 #include "window.h"
 
+#define NANO_PER_SEC 1000000000
+void get_dtime(double *dtime) {
+  struct timespec ts_time;
+  clock_gettime(CLOCK_REALTIME, &ts_time);
+  *dtime = ts_time.tv_sec + (((double)ts_time.tv_nsec) / NANO_PER_SEC);
+}
 
 int main() {
   struct gf_window window;
@@ -28,6 +35,9 @@ int main() {
   struct gf_player *player = gf_player_create();
   gf_window_register_input_listener(gf_player_input_listener, player);
 
+  double old_time, new_time;
+  get_dtime(&old_time);
+
   while (true) {
     wl_display_dispatch_pending(window.display);
 
@@ -35,8 +45,10 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
 
-		// TODO: use delta_time
-		gf_player_update_state(player, 0.0);
+    get_dtime(&new_time);
+
+    gf_player_update_state(player, new_time - old_time);
+    old_time = new_time;
     gf_player_draw(player);
 
     eglSwapBuffers(egl_state.display, egl_state.surface);
