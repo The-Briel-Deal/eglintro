@@ -9,6 +9,8 @@
 
 #define PLAYER_LIST_MAX 128
 
+#define PLAYER_SPEED 3.0f
+
 enum gf_player_input_state {
   GF_PLAYER_INPUT_UP    = 0b0001,
   GF_PLAYER_INPUT_DOWN  = 0b0010,
@@ -130,6 +132,7 @@ void gf_player_update_state(struct gf_player *player, float delta_time) {
   }
 
   gf_vec2s_normalize(&movement_vector);
+	gf_vec2s_scale(&movement_vector, PLAYER_SPEED);
 
   vec2s pos = gf_obj_get_pos(player->obj);
   pos.x += movement_vector.x;

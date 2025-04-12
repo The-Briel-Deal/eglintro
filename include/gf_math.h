@@ -43,6 +43,11 @@ static inline void gf_vec2s_normalize(vec2s *v) {
   assert(gf_vec2s_magnitude(*v) > 0.9 && gf_vec2s_magnitude(*v) < 1.1);
 }
 
+static inline void gf_vec2s_scale(vec2s *v, float factor) {
+  v->x *= factor;
+  v->y *= factor;
+}
+
 static inline void gf_mat4_zero(mat4 dest) {
   memset(dest, 0x0, sizeof(mat4));
 }
