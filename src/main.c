@@ -35,6 +35,8 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
 
+		// TODO: use delta_time
+		gf_player_update_state(player, 0.0);
     gf_player_draw(player);
 
     eglSwapBuffers(egl_state.display, egl_state.surface);

@@ -7,6 +7,7 @@
 // I wasn't using a ton of stuff from the library so I just took and modified
 // what I needed and put it in this header.
 
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,6 +31,17 @@ typedef vec2s vertex;
 typedef vec2s tf_scale;
 typedef vec2s tf_pos;
 typedef float radians;
+
+static inline float gf_vec2s_magnitude(vec2s v) {
+  return sqrtf(v.x * v.x + v.y * v.y);
+}
+
+static inline void gf_vec2s_normalize(vec2s *v) {
+  float mag = gf_vec2s_magnitude(*v);
+  v->x      = v->x / mag;
+  v->y      = v->y / mag;
+  assert(gf_vec2s_magnitude(*v) > 0.9 && gf_vec2s_magnitude(*v) < 1.1);
+}
 
 static inline void gf_mat4_zero(mat4 dest) {
   memset(dest, 0x0, sizeof(mat4));
@@ -169,9 +181,9 @@ static inline void gf_mat4_translate2d_new(tf_pos pos, mat4 dest) {
 
 // TODO: Look at cglm for a better way to do this.
 static inline void gf_mat4_translate2d(mat4 m, tf_pos pos) {
-	mat4 temp;
-	gf_mat4_translate2d_new(pos, temp);
-	gf_mat4_mul(m, temp, m);
+  mat4 temp;
+  gf_mat4_translate2d_new(pos, temp);
+  gf_mat4_mul(m, temp, m);
 }
 
 

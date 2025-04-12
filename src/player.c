@@ -1,6 +1,7 @@
 
 #include "player.h"
 #include "common.h"
+#include "gf_math.h"
 #include "log.h"
 #include "render.h"
 #include <sys/types.h>
@@ -111,6 +112,30 @@ void gf_player_input_listener(xkb_keysym_t key, bool pressed, void *data) {
 #ifdef GF_DEBUG_PLAYER_INPUT
   gf_log(DEBUG_LOG, "Key %s: '%i'", pressed ? "Pressed" : "Released", key);
 #endif
+}
+
+void gf_player_update_state(struct gf_player *player, float delta_time) {
+  vec2s movement_vector = {.x = 0.0, .y = 0.0};
+  if (player->input_state & GF_PLAYER_INPUT_UP)
+    movement_vector.y += 1.0;
+  if (player->input_state & GF_PLAYER_INPUT_RIGHT)
+    movement_vector.x += 1.0;
+  if (player->input_state & GF_PLAYER_INPUT_DOWN)
+    movement_vector.y -= 1.0;
+  if (player->input_state & GF_PLAYER_INPUT_LEFT)
+    movement_vector.x -= 1.0;
+
+  if (movement_vector.x == 0.0 && movement_vector.y == 0.0) {
+    return;
+  }
+
+  gf_vec2s_normalize(&movement_vector);
+
+  vec2s pos = gf_obj_get_pos(player->obj);
+  pos.x += movement_vector.x;
+  pos.y += movement_vector.y;
+
+  gf_obj_set_pos(player->obj, pos);
 }
 
 void gf_player_draw(struct gf_player *player) {
