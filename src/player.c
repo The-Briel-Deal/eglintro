@@ -1,5 +1,4 @@
 #include <sys/types.h>
-#include <time.h>
 #include <xkbcommon/xkbcommon.h>
 
 #include "common.h"
@@ -21,6 +20,7 @@ enum gf_player_input_state {
 
 struct gf_player {
   struct gf_obj *obj;
+  vec2s movement;
   enum gf_player_input_state input_state;
 };
 
@@ -132,7 +132,6 @@ void gf_player_update_state(struct gf_player *player, double delta_time) {
   if (movement_vector.x == 0.0 && movement_vector.y == 0.0) {
     return;
   }
-
 
   gf_vec2s_normalize(&movement_vector);
   gf_vec2s_scale(&movement_vector, PLAYER_SPEED * delta_time);
