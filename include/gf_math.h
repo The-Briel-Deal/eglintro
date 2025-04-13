@@ -81,7 +81,7 @@ static inline void gf_vec2s_lerp(const vec2s *from, const vec2s *to,
   gf_vec2s_sub(from, to, &f_sub_t);
 
   // Put percentage of the distance between vecs we want to in result vec.
-	vec2s res;
+  vec2s res;
   res.x = percent;
   res.y = percent;
 
@@ -89,7 +89,7 @@ static inline void gf_vec2s_lerp(const vec2s *from, const vec2s *to,
   gf_vec2s_mul(&f_sub_t, &res, &res);
 
   // Add the from vector to the percent distance.
-  gf_vec2s_add(from, dest, dest);
+  gf_vec2s_add(from, &res, dest);
 }
 
 static inline void gf_mat4_zero(mat4 dest) {
