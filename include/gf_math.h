@@ -78,7 +78,7 @@ static inline void gf_vec2s_lerp(const vec2s *from, const vec2s *to,
 
   // Get the vector from vec `from` to vec `to`.
   vec2s f_sub_t;
-  gf_vec2s_sub(from, to, &f_sub_t);
+  gf_vec2s_sub(to, from, &f_sub_t);
 
   // Put percentage of the distance between vecs we want to in result vec.
   vec2s res;
