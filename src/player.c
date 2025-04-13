@@ -129,10 +129,6 @@ void gf_player_update_state(struct gf_player *player, double delta_time) {
   if (player->input_state & GF_PLAYER_INPUT_LEFT)
     movement_vector.x -= 1.0;
 
-  if (movement_vector.x == 0.0 && movement_vector.y == 0.0) {
-    return;
-  }
-
   gf_vec2s_normalize(&movement_vector);
   gf_vec2s_scale(&movement_vector, PLAYER_SPEED * delta_time);
 

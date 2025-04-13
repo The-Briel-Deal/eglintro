@@ -45,10 +45,13 @@ static inline float gf_vec2s_magnitude(vec2s v) {
 }
 
 static inline void gf_vec2s_normalize(vec2s *v) {
+  if (v->x == 0.0 && v->y == 0.0) {
+    return;
+  }
+
   float mag = gf_vec2s_magnitude(*v);
   v->x      = v->x / mag;
   v->y      = v->y / mag;
-  assert(gf_vec2s_magnitude(*v) > 0.9 && gf_vec2s_magnitude(*v) < 1.1);
 }
 
 static inline void gf_vec2s_scale(vec2s *v, float factor) {
