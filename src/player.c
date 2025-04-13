@@ -10,6 +10,7 @@
 #define PLAYER_LIST_MAX 128
 
 #define PLAYER_SPEED    300.0f
+#define PLAYER_LERP     5.0f
 
 enum gf_player_input_state {
   GF_PLAYER_INPUT_UP    = 0b0001,
@@ -131,7 +132,8 @@ void gf_player_update_state(struct gf_player *player, double delta_time) {
     movement_vector.x -= 1.0;
 
   gf_vec2s_normalize(&movement_vector);
-  gf_vec2s_lerp(&player->movement, &movement_vector, 0.1, &player->movement);
+  gf_vec2s_lerp(&player->movement, &movement_vector, PLAYER_LERP * delta_time,
+                &player->movement);
 
   vec2s move_by = player->movement;
   gf_vec2s_scale(&move_by, PLAYER_SPEED * delta_time);
