@@ -133,11 +133,12 @@ void gf_player_update_state(struct gf_player *player, double delta_time) {
   gf_vec2s_normalize(&movement_vector);
   gf_vec2s_lerp(&player->movement, &movement_vector, 0.1, &player->movement);
 
-	vec2s move_by = player->movement;
+  vec2s move_by = player->movement;
   gf_vec2s_scale(&move_by, PLAYER_SPEED * delta_time);
-
+  gf_log(INFO_LOG, "Velocity: {x = %f, y = %f}", move_by.x, move_by.y);
 
   vec2s pos = gf_obj_get_pos(player->obj);
+
   pos.x += move_by.x;
   pos.y += move_by.y;
 
