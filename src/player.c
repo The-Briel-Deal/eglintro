@@ -85,6 +85,7 @@ struct gf_player *gf_player_create() {
 
   struct gf_player *player = &gf_player_list.items[gf_player_list.count++];
   player->input_state      = 0b0000;
+  player->movement         = (vec2s){.x = 0.0, .y = 0.0};
 
   player->obj = gf_obj_create_box();
   struct gf_shader *shader =
@@ -130,11 +131,15 @@ void gf_player_update_state(struct gf_player *player, double delta_time) {
     movement_vector.x -= 1.0;
 
   gf_vec2s_normalize(&movement_vector);
-  gf_vec2s_scale(&movement_vector, PLAYER_SPEED * delta_time);
+  gf_vec2s_lerp(&player->movement, &movement_vector, 0.1, &player->movement);
+
+	vec2s move_by = player->movement;
+  gf_vec2s_scale(&move_by, PLAYER_SPEED * delta_time);
+
 
   vec2s pos = gf_obj_get_pos(player->obj);
-  pos.x += movement_vector.x;
-  pos.y += movement_vector.y;
+  pos.x += move_by.x;
+  pos.y += move_by.y;
 
   gf_obj_set_pos(player->obj, pos);
 }
