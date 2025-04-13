@@ -32,6 +32,14 @@ typedef vec2s tf_scale;
 typedef vec2s tf_pos;
 typedef float radians;
 
+static inline float gf_clamp(float val, float min, float max) {
+  if (val > max)
+    return max;
+  if (val < min)
+    return min;
+  return val;
+}
+
 static inline float gf_vec2s_magnitude(vec2s v) {
   return sqrtf(v.x * v.x + v.y * v.y);
 }
@@ -46,6 +54,42 @@ static inline void gf_vec2s_normalize(vec2s *v) {
 static inline void gf_vec2s_scale(vec2s *v, float factor) {
   v->x *= factor;
   v->y *= factor;
+}
+
+static inline void gf_vec2s_add(const vec2s *a, const vec2s *b, vec2s *result) {
+  result->x = a->x + b->x;
+  result->y = a->y + b->y;
+}
+
+static inline void gf_vec2s_sub(const vec2s *a, const vec2s *b, vec2s *result) {
+  result->x = a->x - b->x;
+  result->y = a->y - b->y;
+}
+
+static inline void gf_vec2s_mul(vec2s *a, vec2s *b, vec2s *result) {
+  result->x = a->x * b->x;
+  result->y = a->y * b->y;
+}
+
+static inline void gf_vec2s_lerp(const vec2s *from, const vec2s *to,
+                                 float percent, vec2s *dest) {
+  // We don't want lerp to be negative, or to send us past the other vec.
+  percent = gf_clamp(percent, 0.0, 1.0);
+
+  // Get the vector from vec `from` to vec `to`.
+  vec2s f_sub_t;
+  gf_vec2s_sub(from, to, &f_sub_t);
+
+  // Put percentage of the distance between vecs we want to in result vec.
+	vec2s res;
+  res.x = percent;
+  res.y = percent;
+
+  // Multiply vec `from`->`to` by percent distance.
+  gf_vec2s_mul(&f_sub_t, &res, &res);
+
+  // Add the from vector to the percent distance.
+  gf_vec2s_add(from, dest, dest);
 }
 
 static inline void gf_mat4_zero(mat4 dest) {
