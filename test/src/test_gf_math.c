@@ -12,6 +12,16 @@ static void test_gf_vec2s_normalize() {
   gf_vec2s_normalize(&v);
   ASSERT_NEAR(v.x, 0.707106765f);
   ASSERT_NEAR(v.y, 0.707106765f);
+
+  v = (vec2s){.x = 0.0, .y = 0.0};
+  gf_vec2s_normalize(&v);
+  ASSERT_NEAR(v.x, 0.0);
+  ASSERT_NEAR(v.y, 0.0);
+
+	v = (vec2s){.x = 4000000000000.0, 0.0};
+  gf_vec2s_normalize(&v);
+  ASSERT_NEAR(v.x, 1.0);
+  ASSERT_NEAR(v.y, 0.0);
 }
 
 static void test_gf_vec2s_lerp() {
